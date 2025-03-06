@@ -141,22 +141,27 @@ function App() {
     }
     
     console.log("-------------------------------------------")
+    
+    
     setRecruits((prev1) => {
+        /*Iterate through the recruits*/
         const newPrev1 = prev1.map((recruit,index) => {
-          console.log("Iteration layer 2")
-          console.log(recruit, index)
+          
           const newRecruit = {... recruit}
           const newStats = {... newRecruit.stats}
           
+          /*Iterate through the missions of the recruits*/
           newRecruit.curr_actions = newRecruit.curr_actions.map((action, index1) => {
             const NewAction = [... action]
-            console.log("Iteration layer 3")
+            
             const [mission, timeops] = NewAction
             const newMission = {... mission}
             
             
-            console.log("condition: ", newMission.turns >= newMission.progress)
             
+            /*we check if the missions is scheduled for that day
+            
+            */
             if (timeops[0] == daysOfWeek[dayindex]) {
                 if (newMission.progress < newMission.turns){
                   newMission.progress += 1
