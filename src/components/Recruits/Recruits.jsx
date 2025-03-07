@@ -60,7 +60,9 @@ export function Recruits({recruits}){
                 <p>Energy: {item.stats.curr_energy}/{item.stats.max_stat_value}</p>,
                 <p>Happiness: {item.stats.curr_happiness}/{item.stats.max_stat_value}</p>,
                 <p>Weight: {item.stats?.weight}</p>,
-                <p>Calories: {item.stats?.pound}</p>,
+                <p>Height: {item.stats?.height}</p>,
+                <p>Calories: {item.stats?.calories}</p>,
+                <p>BMI: {item.stats?.bmi}</p>,
                 <IcontButton icon={MenuOutlined} text="Schedule" action={() => {
                   showModal(item.id)
                 }}/>,
