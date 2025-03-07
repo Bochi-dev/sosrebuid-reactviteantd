@@ -8,7 +8,7 @@ SignalFilled,} from "@ant-design/icons"
 import { useState } from 'react'
 import { IconText } from "./components"
 import { Route, Routes, useNavigate, useLocation } from "react-router-dom"
-import { Main, Missions, Todo, Training, Calories } from "./pages"
+import { Main, Missions, Todo, Training, Calories, BmiCalc } from "./pages"
 const daysOfWeek = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
 
 
@@ -289,6 +289,7 @@ function SideMenu() {
             {label: "Training", key:"/Training", icon: <ThunderboltFilled/>},
             {label: "Food", key:"/Food", icon: <ThunderboltFilled/>},
             {label: "Calories", key:"/Calories", icon: <ThunderboltFilled/>},
+            {label: "BmiCalc", key:"/BmiCalc", icon: <ThunderboltFilled/>},
             {label: "Todo", key:"/Todo", icon: <SignalFilled/>},
             
         ]}>
@@ -342,6 +343,10 @@ function Content(operations) {
             <Route 
                 path="/Calories" 
                 element={<Calories operations={operations}/>}
+            />
+            <Route 
+                path="/BmiCalc" 
+                element={<BmiCalc/>}
             />
             <Route 
                 path="/Todo" 
