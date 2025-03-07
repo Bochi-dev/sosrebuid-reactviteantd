@@ -8,7 +8,7 @@ SignalFilled,} from "@ant-design/icons"
 import { useState } from 'react'
 import { IconText } from "./components"
 import { Route, Routes, useNavigate, useLocation } from "react-router-dom"
-import { Main, Missions, Todo, Training } from "./pages"
+import { Main, Missions, Todo, Training, Calories } from "./pages"
 const daysOfWeek = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
 
 
@@ -31,7 +31,7 @@ function App() {
       
       min_stat_value: 1,
       max_stat_value: 100,
-    }
+      }
     },
     {id:2,
     name:"Mendoza",
@@ -159,9 +159,7 @@ function App() {
             
             
             
-            /*we check if the missions is scheduled for that day
-            
-            */
+            /*we check if the missions is scheduled for that day*/
             if (timeops[0] == daysOfWeek[dayindex]) {
                 if (newMission.progress < newMission.turns){
                   newMission.progress += 1
@@ -289,6 +287,8 @@ function SideMenu() {
             {label: "Home", key:"/", icon: <HomeOutlined/>},
             {label: "Missions", key:"/Missions", icon: <ProductFilled/>},
             {label: "Training", key:"/Training", icon: <ThunderboltFilled/>},
+            {label: "Food", key:"/Food", icon: <ThunderboltFilled/>},
+            {label: "Calories", key:"/Calories", icon: <ThunderboltFilled/>},
             {label: "Todo", key:"/Todo", icon: <SignalFilled/>},
             
         ]}>
@@ -320,25 +320,33 @@ function Header({days, dayName, turns, nextTurn}) {
 }
 
 function Content(operations) {
-    return <div>
+    return <div style={{padding:15}}>
         <Routes>
             
             <Route 
                 path="/" 
                 element={<Main operations={operations}/>}
-            ></Route>
+            />
             <Route 
                 path="/Missions" 
                 element={<Missions operations={operations}/>}
-            ></Route>
+            />
             <Route 
                 path="/Training" 
                 element={<Training operations={operations}/>}
-            ></Route>
+            />
+            <Route 
+                path="/Food" 
+                element={<>Food here</>}
+            />
+            <Route 
+                path="/Calories" 
+                element={<Calories operations={operations}/>}
+            />
             <Route 
                 path="/Todo" 
                 element={<Todo/>}
-            ></Route>
+            />
             
         </Routes>
     </div>
