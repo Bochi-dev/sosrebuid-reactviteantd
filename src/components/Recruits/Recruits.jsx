@@ -19,7 +19,7 @@ const IcontButton = ({icon, text, action}) => (
     </Space>
 )
 
-export function Recruits({recruits}){
+export function Recruits({recruits, display}){
 
     const data = [... recruits];
     const [modalData, setModalData] = useState([])
@@ -57,12 +57,12 @@ export function Recruits({recruits}){
                 <p>Strength: {item.stats.curr_strength}</p>,
                 <p>Inteligence: {item.stats.curr_inteligence}</p>,
                 <p>Spirit: {item.stats.curr_spirit}</p>,
-                <p>Energy: {item.stats.curr_energy}/{item.stats.max_stat_value}</p>,
-                <p>Happiness: {item.stats.curr_happiness}/{item.stats.max_stat_value}</p>,
-                <p>Weight: {item.stats?.weight}</p>,
-                <p>Height: {item.stats?.height}</p>,
-                <p>Calories: {item.stats?.calories}</p>,
-                <p>BMI: {item.stats?.bmi}</p>,
+//                <p>Energy: {item.stats?.curr_energy}/{item.stats.max_stat_value}</p>,
+                <p>Fatigue: {item.stats?.fatigue_display}%</p>,
+//                <p>Weight: {item.stats?.weight}</p>,
+//                <p>Height: {item.stats?.height}</p>,
+//                <p>Calories: {item.stats?.calories}</p>,
+//                <p>BMI: {item.stats?.bmi}</p>,
                 <IcontButton icon={MenuOutlined} text="Schedule" action={() => {
                   showModal(item.id)
                 }}/>,

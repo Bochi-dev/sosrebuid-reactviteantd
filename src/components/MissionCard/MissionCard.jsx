@@ -29,7 +29,7 @@ export function MissionCard ({missions, setMisssions, operations, timeOperations
             
             <p>rewards</p>
             {mission.reward.map((reward, index) => {
-              return <p key={index}>{reward.type}: {reward.amount}</p>
+              return <p key={index}>{reward.label}</p>
             
             })}
             

@@ -14,76 +14,39 @@ export function Stress({operations}){
       curr_inteligence: 20,
       curr_spirit: 20,
       
-      curr_happiness: 100,
-      curr_energy: 100,
-      
+      fatigue: 0.10,
+      fatigue_display:100,
       min_stat_value: 1,
       max_stat_value: 100,
-      weight: 68,
-      height: 1.7,
-      calories: caloriesOfAKg,
-      bmi: "normal"
       }
     },])
     
     const [trainings, setTrainings] = useState([
         {id:1, 
         type:"mission", 
-        name:"Exercise", 
+        name:"Sleep", 
         subs:[], 
-        reward:[{type:"calories", amount:-2500}], 
-        progress:0, 
-        turns: 1, 
-        participants:[]},
-        {id:2, 
-        type:"mission", 
-        name:"Marcdonalds", 
-        subs:[], 
-        reward:[{type:"calories", amount:1500}], 
+        reward:[{type:"fatigue", amount:-0.00416*3, label: "10-8% less tired"}], 
         progress:0, 
         turns: 1, 
         participants:[]},
         ])
     
     const timeOperations = operations.operations[4]
- 
-    const getBMICategory = (bmi) => {
-        if (bmi < 18) {
-          return 'Underweight';
-        } else if (bmi >= 18 && bmi < 25) {
-          return 'Normal weight';
-        } else if (bmi >= 25 && bmi < 30) {
-          return 'Overweight';
-        } else {
-          return 'Obesity';
-        }
-    };
     
-    
-    
-    const looseGainWeight = (stats, amount) => {
-    
-      let calories = stats.calories + (amount)
+    const manageFatigue = (stats, amount) => {
       
-      console.log(calories)
-      if (calories > caloriesOfAKg){
-        calories = 0
-        stats.weight += 1
-        
-      } else if (calories < 0) {
+      const fatigue = stats.fatigue + amount
+      const fatigue_display = Math.floor((fatigue/0.10)*100)
       
-        calories = caloriesOfAKg + calories
-        stats.weight -= 1
-        
+      if (fatigue_display < 0.01){
+        stats.fatigue = 0.01
+        stats.fatigue_display = 1     
+      } else {
+        stats.fatigue = fatigue
+        stats.fatigue_display = fatigue_display
       }
- 
-      const bmi = stats.weight / stats.height**2;
-      const category = getBMICategory(bmi)
-      
-      stats.calories = calories
-      stats.bmi = `${Math.floor(bmi)} - ${category}`
-      
-      
+
       return stats
     }
     
@@ -108,11 +71,13 @@ export function Stress({operations}){
             /*we check if the missions is scheduled for that day*/
           
             const newRewards = newMission.reward.map((reward) => {
-                  if (reward.type == "calories"){
-                    looseGainWeight(newStats, reward.amount)
+                  if (reward.type == "fatigue"){
+//                    newStats.fatigue += reward.amount
+                     manageFatigue(newStats, reward.amount)
                   }
                   return reward
                 })
+            console.log(newStats.fatigue)
             newMission.reward = newRewards
            
             
@@ -121,6 +86,8 @@ export function Stress({operations}){
           })
           
 //          newStats.curr_strength = minus1toStats(newStats.curr_strength)
+          manageFatigue(newStats, 0.00416)
+          console.log(newStats.fatigue)
           newRecruit.stats = newStats
           
           
@@ -137,7 +104,7 @@ export function Stress({operations}){
 
     console.log("timeOperations",timeOperations)
     return (<>
-        <Recruits recruits={recruits}/>
+        <Recruits recruits={recruits} />
         <MissionCard 
           missions={trainings}
           setMisssions={setTrainings}
