@@ -5,7 +5,7 @@ MessageOutlined,
 MenuOutlined,
 ArrowRightOutlined} from "@ant-design/icons"
 const daysOfWeek = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
-import { GameCard, IconText } from "../../components"
+import { GameCard, IconText } from "../../../components"
 import {Space, List, Avatar, Button, Modal, Progress} from "antd"
 import React from 'react';
 import { useState } from 'react'
@@ -57,8 +57,11 @@ export function Recruits({recruits, display}){
                 <p>Strength: {item.stats.curr_strength}</p>,
                 <p>Inteligence: {item.stats.curr_inteligence}</p>,
                 <p>Spirit: {item.stats.curr_spirit}</p>,
-                <p>Energy: {item.stats?.curr_energy}/{item.stats.max_stat_value}</p>,
-                <p>Happiness: {item.stats.curr_happiness}/{item.stats.max_stat_value}</p>,
+                <p>Energy: {item.stats?.curr_energy}/{item.stats.max_stat_value}</p>,          
+                <p>Weight: {item.stats?.weight}</p>,
+                <p>Height: {item.stats?.height}</p>,
+                <p>Calories: {item.stats?.calories}</p>,
+                <p>BMI: {item.stats?.bmi}</p>,
                 <IcontButton icon={MenuOutlined} text="Schedule" action={() => {
                   showModal(item.id)
                 }}/>,

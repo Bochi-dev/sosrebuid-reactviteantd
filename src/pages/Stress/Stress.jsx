@@ -1,6 +1,7 @@
 import { Button } from "antd"
-import {useState} from "react"
-import {Recruits, MissionCard} from "../../components"
+import { useState } from "react"
+import { Recruits } from "./Recruits"
+import { MissionCard } from "./MissionCard"
 
 export function Stress({operations}){
 
@@ -10,8 +11,8 @@ export function Stress({operations}){
     name:"Garcia",
     curr_actions: [],
     stats: {
-      curr_strength: 20,
-      curr_inteligence: 20,
+      curr_strength: 65,
+      curr_inteligence: 30,
       curr_spirit: 20,
       
       fatigue: 0.10,
@@ -25,7 +26,22 @@ export function Stress({operations}){
         {id:1, 
         type:"mission", 
         name:"Sleep", 
-        subs:[], 
+        subs:[],
+        reqs: [], 
+        reward:[{type:"fatigue", amount:-0.00416*3, label: "10-8% less tired"}], 
+        progress:0, 
+        turns: 1, 
+        participants:[]},
+        
+        {id:2, 
+        type:"mission", 
+        name:"Complex Equations", 
+        subs:[],
+        reqs: [
+        {type:"strength", amount: 50, label: "50 Strength"},
+        {type:"spirit", amount: 50, label: "50 Spirit"},
+        {type:"inteligence", amount: 25, label: "25 inteligence"},
+        ], 
         reward:[{type:"fatigue", amount:-0.00416*3, label: "10-8% less tired"}], 
         progress:0, 
         turns: 1, 
@@ -39,9 +55,9 @@ export function Stress({operations}){
       const fatigue = stats.fatigue + amount
       const fatigue_display = Math.floor((fatigue/0.10)*100)
       
-      if (fatigue_display < 0.01){
-        stats.fatigue = 0.01
-        stats.fatigue_display = 1     
+      if (fatigue_display < 0.00){
+        stats.fatigue = 0.00
+        stats.fatigue_display = 0     
       } else {
         stats.fatigue = fatigue
         stats.fatigue_display = fatigue_display

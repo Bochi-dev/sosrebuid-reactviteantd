@@ -1,6 +1,7 @@
 import { Button } from "antd"
 import {useState} from "react"
-import {Recruits, MissionCard} from "../../components"
+import {MissionCard} from "../../components"
+import {Recruits} from "./Recruits"
 
 export function Calories({operations}){
 
