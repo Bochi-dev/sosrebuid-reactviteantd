@@ -13,6 +13,7 @@ import { GameCard, IconText } from "../../../components"
 import {Space, List, Avatar, Button, Modal, Progress} from "antd"
 import React from 'react';
 import { useState } from 'react'
+import { debuffByFatigue, getStat } from "../helpers"
 
 const IcontButton = ({icon, text, action}) => (
     <Space>
@@ -54,14 +55,6 @@ export function Recruits({recruits}){
     };
     
     
-    
-    const debuffByFatigue = (stat, fatigue) => {
-        const debuff_percentage = (fatigue/0.10) 
-        let modified = debuff_percentage * 0.45     
-        console.log(modified)          
-        return Math.ceil(stat*modified)
-    }
-    
     const display = (statToDisplay,stats) => {
         const fatigue = stats.fatigue
         const fatigueDebuff = debuffByFatigue(statToDisplay,fatigue)        
@@ -75,7 +68,7 @@ export function Recruits({recruits}){
       
       return reqs.map((req, index) => {
         
-        const stat = stats["curr_"+req.type]
+        const stat = getStat(stats["curr_"+req.type], stats)
         let color
         let icon
         

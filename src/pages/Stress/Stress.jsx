@@ -2,6 +2,7 @@ import { Button } from "antd"
 import { useState } from "react"
 import { Recruits } from "./Recruits"
 import { MissionCard } from "./MissionCard"
+import { checkReqs } from "./helpers" 
 
 export function Stress({operations}){
 
@@ -13,7 +14,7 @@ export function Stress({operations}){
     stats: {
       curr_strength: 65,
       curr_inteligence: 30,
-      curr_spirit: 20,
+      curr_spirit: 70,
       
       fatigue: 0.10,
       fatigue_display:100,
@@ -22,13 +23,19 @@ export function Stress({operations}){
       }
     },])
     
+    
+    
+    
+    
     const [trainings, setTrainings] = useState([
         {id:1, 
         type:"mission", 
         name:"Sleep", 
         subs:[],
         reqs: [], 
-        reward:[{type:"fatigue", amount:-0.00416*3, label: "10-8% less tired"}], 
+        reward:[
+            {type:"fatigue", amount:-0.00416*3, label: "10-8% less tired"}
+        ], 
         progress:0, 
         turns: 1, 
         participants:[]},
@@ -38,11 +45,13 @@ export function Stress({operations}){
         name:"Complex Equations", 
         subs:[],
         reqs: [
-        {type:"strength", amount: 50, label: "50 Strength"},
-        {type:"spirit", amount: 50, label: "50 Spirit"},
-        {type:"inteligence", amount: 25, label: "25 inteligence"},
+            {type:"strength", amount: 50, label: "50 Strength"},
+            {type:"spirit", amount: 50, label: "50 Spirit"},
+            {type:"inteligence", amount: 25, label: "25 inteligence"},
         ], 
-        reward:[{type:"fatigue", amount:-0.00416*3, label: "10-8% less tired"}], 
+        reward:[
+            {type:"inteligence", amount:2, label: "+2 inteligence"}
+        ], 
         progress:0, 
         turns: 1, 
         participants:[]},
@@ -50,8 +59,11 @@ export function Stress({operations}){
     
     const timeOperations = operations.operations[4]
     
+    
+    
+    
     const manageFatigue = (stats, amount) => {
-      
+      console.log("stats fatigue",stats.fatigue)
       const fatigue = stats.fatigue + amount
       const fatigue_display = Math.floor((fatigue/0.10)*100)
       
@@ -59,6 +71,7 @@ export function Stress({operations}){
         stats.fatigue = 0.00
         stats.fatigue_display = 0     
       } else {
+        console.log("fatigue2", fatigue)
         stats.fatigue = fatigue
         stats.fatigue_display = fatigue_display
       }
@@ -85,28 +98,33 @@ export function Stress({operations}){
             
             
             /*we check if the missions is scheduled for that day*/
-          
-            const newRewards = newMission.reward.map((reward) => {
-                  if (reward.type == "fatigue"){
-//                    newStats.fatigue += reward.amount
-                     manageFatigue(newStats, reward.amount)
-                  }
-                  return reward
-                })
-            console.log(newStats.fatigue)
-            newMission.reward = newRewards
-           
             
-            console.log(newMission, timeops,index1)
+            
+//            check if you fullfill the requirements
+
+            
+            if (checkReqs(mission.reqs, newStats)){           
+              const newRewards = newMission.reward.map((reward) => {
+                if (reward.type == "fatigue"){
+
+                 manageFatigue(newStats, reward.amount)               
+                   
+                } else if (reward.type == "inteligence"){
+                  newStats.curr_inteligence += reward.amount
+                }
+                return reward
+              })           
+            }
+            
+            
+                      
             return [newMission, timeops]
           })
           
-//          newStats.curr_strength = minus1toStats(newStats.curr_strength)
           manageFatigue(newStats, 0.00416)
-          console.log(newStats.fatigue)
+          
+          console.log("fatigue",newStats.fatigue)
           newRecruit.stats = newStats
-          
-          
           
           return newRecruit
         })
