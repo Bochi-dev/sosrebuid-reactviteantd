@@ -5,7 +5,7 @@ MessageOutlined,
 MenuOutlined,
 ArrowRightOutlined} from "@ant-design/icons"
 const daysOfWeek = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
-import { GameCard, IconText } from "../../components"
+import { GameCard, IconText, SchedulerModal} from "../../components"
 import {Space, List, Avatar, Button, Modal, Progress} from "antd"
 import React from 'react';
 import { useState } from 'react'
@@ -25,6 +25,8 @@ export function Recruits({recruits, display}){
     const [modalData, setModalData] = useState([])
     
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalStatsOpen, setIsModalStatsOpen] = useState(false);
+    
     const showModal = (id) => {
       setIsModalOpen(true);
       const recruit = recruits.filter((el) => {
@@ -34,17 +36,43 @@ export function Recruits({recruits, display}){
       })[0]
       
       console.log("moda_recruit: ",recruit)
-      setModalData(recruit.curr_actions)
-      
-      
-      
+      setModalData([recruit.curr_actions, recruit.stats])
+
     };
+    
+    
     const handleOk = () => {
       setIsModalOpen(false);
     };
+    
     const handleCancel = () => {
       setIsModalOpen(false);
     };
+    
+    const showModalStat = (id) => {
+      setIsModalStatsOpen(true);
+      const recruit = recruits.filter((el) => {
+       if (el.id == id) {
+        return el
+       } 
+      })[0]
+      
+      console.log("moda_recruit: ",recruit)
+      setModalData(recruit.stats)
+
+    };
+    
+    const handleStatsOk = () => {
+      setIsModalStatsOpen(false);
+    };
+    
+    const handleStatsCancel = () => {
+      setIsModalStatsOpen(false);
+    };
+    
+    
+    
+    
 
 
     return (<>
@@ -57,8 +85,9 @@ export function Recruits({recruits, display}){
                 <p>Strength: {item.stats.curr_strength}</p>,
                 <p>Inteligence: {item.stats.curr_inteligence}</p>,
                 <p>Spirit: {item.stats.curr_spirit}</p>,
-                <p>Energy: {item.stats?.curr_energy}/{item.stats.max_stat_value}</p>,
-                <p>Happiness: {item.stats.curr_happiness}/{item.stats.max_stat_value}</p>,
+                <IcontButton icon={StarOutlined} text="Stats" action={() => {
+                  showModalStat(item.id)
+                }}/>,
                 <IcontButton icon={MenuOutlined} text="Schedule" action={() => {
                   showModal(item.id)
                 }}/>,
@@ -76,7 +105,7 @@ export function Recruits({recruits, display}){
         />
           
           
-      <Modal title="Schedule" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+      {/*<Modal title="Schedule" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
         
         {daysOfWeek.map((day) => {
           const dayData = modalData.filter((el) => {
@@ -106,6 +135,27 @@ export function Recruits({recruits, display}){
           </>)
         
         })}
+      </Modal>*/}
+      
+      
+      <SchedulerModal 
+        title="Schedule"
+        open={isModalOpen}
+        onOk={handleOk} 
+        onCancel={handleCancel}
+        modalData={modalData} />
+        
+      <Modal title="Stats" open={isModalStatsOpen} onOk={handleStatsOk} onCancel={handleStatsCancel}> 
+          <p>Strength: {modalData.curr_strength}</p>
+          <p>Inteligence: {modalData.curr_inteligence}</p>
+          <p>Spirit: {modalData.curr_spirit}</p>
+          <p>Weight: {modalData?.weight}</p>
+          <p>Height: {modalData?.height}</p>
+          <p>Calories: {modalData?.calories}</p>
+          <p>BMI: {modalData?.bmi}</p>
+          <p>Fatigue: {modalData?.fatigue_display}%</p>
       </Modal>
+      
+      
     </>)
 }

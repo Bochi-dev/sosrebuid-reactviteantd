@@ -8,7 +8,7 @@ CheckOutlined,
 CloseOutlined,} from "@ant-design/icons"
 import { red, green } from '@ant-design/colors';
 
-const daysOfWeek = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
+
 import { GameCard, IconText } from "../../../components"
 import {Space, List, Avatar, Button, Modal, Progress} from "antd"
 import React from 'react';

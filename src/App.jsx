@@ -7,6 +7,7 @@ ThunderboltFilled,
 SignalFilled,} from "@ant-design/icons"
 import { useState } from 'react'
 import { IconText } from "./components"
+import { changeStatByTurn } from "./global"
 import { Route, Routes, useNavigate, useLocation } from "react-router-dom"
 import { Main,
 Missions,
@@ -31,9 +32,16 @@ function App() {
       curr_strength: 1,
       curr_inteligence: 1,
       curr_spirit: 1,
-      
+      /*Weight*/
+      weight: 68,
+      height: 1.7,
+      calories: 7700,
+      bmi: "normal",
+      /*Fatigue*/
+      fatigue: 0.00,
+      fatigue_display:0,
+      /*Energy and Happiness*/
       curr_happiness: 100,
-      curr_energy: 100,
       
       min_stat_value: 1,
       max_stat_value: 100,
@@ -47,8 +55,16 @@ function App() {
       curr_inteligence: 1,
       curr_spirit: 1,
       
+      /*Weight*/
+      weight: 68,
+      height: 1.7,
+      calories: 7700,
+      bmi: "normal",
+      /*Fatigue*/
+      fatigue: 0.00,
+      fatigue_display:0,
+      /*Energy and Happiness*/
       curr_happiness: 100,
-      curr_energy: 100,
       
       min_stat_value: 1,
       max_stat_value: 100,
@@ -62,8 +78,16 @@ function App() {
       curr_inteligence: 1,
       curr_spirit: 1,
       
+      /*Weight*/
+      weight: 68,
+      height: 1.7,
+      calories: 7700,
+      bmi: "normal",
+      /*Fatigue*/
+      fatigue: 0.00,
+      fatigue_display:0,
+      /*Happiness*/
       curr_happiness: 100,
-      curr_energy: 100,
       
       min_stat_value: 1,
       max_stat_value: 100,
@@ -73,9 +97,42 @@ function App() {
   
   
   const [trainings, setTrainings] = useState([
-        {id:1, type:"training", name:"Excercise", subs:[2,3], reward:[{type:"strength", amount:2}], progress:0, turns: 1, participants:[]},
-        {id:2, type:"training", name:"Meditation", subs:[3], reward:[{type:"spirit", amount:2}], progress:0 ,turns: 1, participants:[]},
-        {id:3, type:"training", name:"Research in library", subs:[], reward:[{type:"inteligence", amount:2}], progress:0 ,turns: 1, participants:[]}
+        {
+          id:1,
+          type:"training",
+          name:"Excercise",
+          reqs:[
+            {type:"strength", amount: 10, label: "10 Strength"},
+            {type:"spirit", amount: 10, label: "10 Spirit"},
+          ],
+          subs:[2,3],
+          reward:[{type:"strength", amount:2, label:"+2 Strength"}],
+          progress:0,
+          turns: 1,
+          participants:[]
+        },
+        {
+          id:2, 
+          type:"training", 
+          name:"Meditation", 
+          reqs:[],
+          subs:[3], 
+          reward:[{type:"spirit", amount:2, label:"+2 Spirit"}], 
+          progress:0, 
+          turns: 1, 
+          participants:[]
+        },
+        {
+          id:3, 
+          type:"training", 
+          name:"Research in library",
+          reqs:[], 
+          subs:[], 
+          reward:[{type:"inteligence", amount:2, label:"+2 Inteligence"}], 
+          progress:0, 
+          turns: 1, 
+          participants:[]
+        }
 
   ])
   
@@ -192,8 +249,8 @@ function App() {
             return [newMission, timeops]
           })
           
-          newStats.curr_strength = minus1toStats(newStats.curr_strength)
-          newRecruit.stats = newStats
+          
+          newRecruit.stats = changeStatByTurn(newStats, turns)
           
           
           

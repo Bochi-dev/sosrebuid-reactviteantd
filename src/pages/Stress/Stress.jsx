@@ -25,6 +25,21 @@ the new functions created need to be put in main
     -looseGainWeight
 
 
+after mergin
+    work on the triple securing system
+    presecure (planning and expectation):
+        you indicate everyone what to do
+        
+    securing(passive):
+        sleep 9 turns
+        
+    securing(active)
+        work or train 15 turns
+    
+    postsecuring(reality review)
+        this is when I take the time to review
+        everything that happened and all notification
+        or report from the staff or the buildings
 */
 
 
