@@ -4,9 +4,35 @@ import { Recruits } from "./Recruits"
 import { MissionCard } from "./MissionCard"
 import { checkReqs } from "./helpers" 
 
+
+/*
+TODO
+Sunday March 9
+
+Merge features like stress and calories to main game
+
+change the list of recruits to match the new features
+    -fatigue
+    -fatigue_display
+    -weigth
+    -height
+    -calories
+    -bmi
+    
+the new functions created need to be put in main
+    -manageFatigue
+    -getBMICategory
+    -looseGainWeight
+
+
+*/
+
+
+
+
 export function Stress({operations}){
 
-    const caloriesOfAKg = 7700
+    
     const [recruits, setRecruits] = useState([
     {id:1,
     name:"Garcia",
@@ -138,6 +164,7 @@ export function Stress({operations}){
 
     console.log("timeOperations",timeOperations)
     return (<>
+        
         <Recruits recruits={recruits} />
         <MissionCard 
           missions={trainings}
