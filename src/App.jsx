@@ -7,7 +7,7 @@ ThunderboltFilled,
 SignalFilled,} from "@ant-design/icons"
 import { useState } from 'react'
 import { IconText } from "./components"
-import { changeStatByTurn } from "./global"
+import { changeStatByTurn, manageFatigue, checkReqs, looseGainWeight } from "./global"
 import { Route, Routes, useNavigate, useLocation } from "react-router-dom"
 import { Main,
 Missions,
@@ -29,9 +29,9 @@ function App() {
     name:"Garcia",
     curr_actions: [],
     stats: {
-      curr_strength: 1,
-      curr_inteligence: 1,
-      curr_spirit: 1,
+      curr_strength: 15,
+      curr_inteligence: 15,
+      curr_spirit: 20,
       /*Weight*/
       weight: 68,
       height: 1.7,
@@ -51,9 +51,9 @@ function App() {
     name:"Mendoza",
     curr_actions: [],
     stats: {
-      curr_strength: 1,
-      curr_inteligence: 1,
-      curr_spirit: 1,
+      curr_strength: 15,
+      curr_inteligence: 20,
+      curr_spirit: 15,
       
       /*Weight*/
       weight: 68,
@@ -74,9 +74,9 @@ function App() {
     name:"Juanita",
     curr_actions: [],
     stats: {
-      curr_strength: 1,
-      curr_inteligence: 1,
-      curr_spirit: 1,
+      curr_strength: 20,
+      curr_inteligence: 15,
+      curr_spirit: 15,
       
       /*Weight*/
       weight: 68,
@@ -138,9 +138,9 @@ function App() {
   
   
   const [missions, setMissions] = useState([
-    {id:1, type:"mission", name:"Complete mission 1", subs:[2,3], reward:[{type:"food", amount:30}], progress:0, turns: 10, participants:[]},
-    {id:2, type:"mission", name:"Complete mission 2", subs:[3], reward:[{type:"food", amount:20}], progress:0 ,turns: 5, participants:[]},
-    {id:3, type:"mission", name:"Complete mission 3", subs:[], reward:[{type:"food", amount:10}], progress:0 ,turns: 2, participants:[]},
+    {id:1, type:"mission", name:"Complete mission 1", reqs:[], subs:[2,3], reward:[{type:"food", amount:30, label:"+30 Food"}], progress:0, turns: 10, participants:[]},
+    {id:2, type:"mission", name:"Complete mission 2", reqs:[], subs:[3], reward:[{type:"food", amount:20, label:"+20 Food"}], progress:0 ,turns: 5, participants:[]},
+    {id:3, type:"mission", name:"Complete mission 3", reqs:[], subs:[], reward:[{type:"food", amount:10, label:"+10 Food"}], progress:0 ,turns: 2, participants:[]},
   ])
   
   let x
@@ -224,22 +224,27 @@ function App() {
             
             /*we check if the missions is scheduled for that day*/
             if (timeops[0] == daysOfWeek[dayindex]) {
-                if (newMission.progress < newMission.turns){
-                  newMission.progress += 1
-                } else {
+                newMission.progress += 1
+                if (newMission.progress > newMission.turns){
                   newMission.progress = 0
                   
-                  const newRewards = newMission.reward.map((reward) => {
-                        if (reward.type == "strength"){
-                          newStats.curr_strength += reward.amount
-                        } else if (reward.type == "inteligence"){
-                          newStats.curr_inteligence += reward.amount
-                        } else if (reward.type == "spirit"){
-                          newStats.curr_spirit += reward.amount
-                        }
-                        return reward
-                      })
-                  newMission.reward = newRewards
+                  if (checkReqs(mission.reqs, newStats)){ 
+                      const newRewards = newMission.reward.map((reward) => {
+                            if (reward.type == "calories"){
+                              looseGainWeight(newStats, reward.amount)
+                            } else if (reward.type == "fatigue"){
+                             manageFatigue(newStats, reward.amount)                  
+                            } else if (reward.type == "strength"){
+                              newStats.curr_strength += reward.amount
+                            } else if (reward.type == "inteligence"){
+                              newStats.curr_inteligence += reward.amount
+                            } else if (reward.type == "spirit"){
+                              newStats.curr_spirit += reward.amount
+                            }
+                            return reward
+                          })
+                      newMission.reward = newRewards
+                  }
                   
                 }
             }
@@ -319,6 +324,7 @@ function App() {
     */}
     
       <Header days={days} dayName={daysOfWeek[dayindex]} turns={turns} nextTurn={nextTurn}/>
+      
       <div style={{
             display: "flex", 
             flexDirection:"row", 
@@ -376,7 +382,7 @@ function Header({days, dayName, turns, nextTurn}) {
     >
     <Space>
       <IconText icon={SunOutlined} text={`${dayName}, Days: ${days}`}/>
-      Turn: {turns}
+      Turns: {turns}
       <Button onClick={() => {
         nextTurn()
       }}>Next Turn</Button>

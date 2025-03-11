@@ -15,6 +15,15 @@ import { AntDesignOutlined, UserOutlined, MinusCircleOutlined} from '@ant-design
 export function MissionCard ({missions, setMisssions, operations, timeOperations}) {
     const [recruits, setRecruits] = operations
     const [weekday, day, turn] = timeOperations
+    
+    const requirements = (reqs) => {
+      if (reqs.length == 0){
+        return "N/A"
+      }
+      return reqs.map((req, index) => {
+        return <p key={index}>({index+1}) - {req.label}</p>  
+      })
+    }
 
     return (
         <Space direction={"horizontal"} size={6} wrap>
@@ -24,12 +33,18 @@ export function MissionCard ({missions, setMisssions, operations, timeOperations
             return <Card key={mission.id} title={mission.name} variant="borderless" style={{ width: 300 }}>
             
             <p>progress {mission.progress}/{mission.turns}</p>
+            
+            
+            <p>
+            <strong>Requirements</strong>
+            </p>
+            {requirements(mission.reqs)}
 
-            
-            
-            <p>rewards</p>
+            <p>
+            <strong>Rewards</strong>
+            </p>
             {mission.reward.map((reward, index) => {
-              return <p key={index}>{reward.label}</p>
+              return <p key={index}>({index+1}) - {reward.label}</p>
             
             })}
             
@@ -52,11 +67,14 @@ export function MissionCard ({missions, setMisssions, operations, timeOperations
                           return JSON.stringify(el)
                         })
                         
-                        
-                        if (value.includes(newRecruit.id) && stringifyActions.includes(JSON.stringify([mission, timeOperations])) == false){                    
-                            newRecruit.curr_actions = [... r.curr_actions, [mission, timeOperations]]
+                        /*If its in values, dont remove the mission from it*/
+                        if (value.includes(newRecruit.id)){
+                            /*If the mission was already added, dont add it again*/
+                            if (stringifyActions.includes(JSON.stringify([mission, timeOperations])) == false){                    
+                                newRecruit.curr_actions = [... r.curr_actions, [mission, timeOperations]]
+                            }
                         } else {
-                            
+                            /*If the id is in the mission, we supposed that the mission was already added so we remove it*/
                             newRecruit.curr_actions = r.curr_actions.filter(action => JSON.stringify(action) !== JSON.stringify([mission, timeOperations]))
                         }
                         console.log(newRecruit)

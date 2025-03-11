@@ -114,7 +114,7 @@ export const looseGainWeight = (stats, amount) => {
 export const minusToStat = (stat) => {
     const tenpercent = stat * 0.1
     if (stat > 20) {
-        return stat -= tenpercent
+        return Math.floor(stat -= tenpercent)
     } else {
       stat = 20
     }
@@ -150,4 +150,8 @@ export const changeStatByTurn = (stats, turns) => {
  return newStats
   
 }
+
+/*MAke a function that calculcates the hours without sleep based on the fatigueDebuff
+or make a new variable inside the stats that counts it
+*/
 

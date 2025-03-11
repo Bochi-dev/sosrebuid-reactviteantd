@@ -16,7 +16,7 @@ import { MissionCard } from "../../components"
 
 
 export function Missions ({operations}) {
-  const [missions, setMissions, recruits, setRecruits] = operations.operations
+  const [missions, setMissions, recruits, setRecruits, timeOperations] = operations.operations
   
   
   const onFinish = (values) => {
@@ -168,8 +168,15 @@ export function Missions ({operations}) {
         </Form.Item>
       </Form>
     </Space>
-
-    <MissionCard missions={missions} setMisssions={setMissions} operations={[recruits, setRecruits]}/>
+    
+    <div>
+        <MissionCard 
+        missions={missions} 
+        setMisssions={setMissions} 
+        operations={[recruits, setRecruits]}
+        timeOperations={timeOperations}
+        />
+    </div>
     
   </>
 }

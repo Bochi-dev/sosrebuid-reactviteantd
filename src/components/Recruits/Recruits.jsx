@@ -6,9 +6,11 @@ MenuOutlined,
 ArrowRightOutlined} from "@ant-design/icons"
 const daysOfWeek = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
 import { GameCard, IconText, SchedulerModal} from "../../components"
+import { debuffByFatigue } from "../../global"
 import {Space, List, Avatar, Button, Modal, Progress} from "antd"
 import React from 'react';
 import { useState } from 'react'
+
 
 const IcontButton = ({icon, text, action}) => (
     <Space>
@@ -19,7 +21,7 @@ const IcontButton = ({icon, text, action}) => (
     </Space>
 )
 
-export function Recruits({recruits, display}){
+export function Recruits({recruits}){
 
     const data = [... recruits];
     const [modalData, setModalData] = useState([])
@@ -73,7 +75,17 @@ export function Recruits({recruits, display}){
     
     
     
-
+    const display = (statToDisplay,stats) => {
+        const fatigue = stats.fatigue
+        const fatigueDebuff = debuffByFatigue(statToDisplay,fatigue) 
+        
+        if ( fatigueDebuff > 0 ){
+            return `${statToDisplay-fatigueDebuff} (${statToDisplay} - ${fatigueDebuff})`
+        }  
+        return statToDisplay     
+        
+    }
+    
 
     return (<>
         <List
@@ -82,9 +94,9 @@ export function Recruits({recruits, display}){
           renderItem={(item, index) => (
             <List.Item
                actions={[
-                <p>Strength: {item.stats.curr_strength}</p>,
-                <p>Inteligence: {item.stats.curr_inteligence}</p>,
-                <p>Spirit: {item.stats.curr_spirit}</p>,
+                <p>Strength: {display(item.stats.curr_strength, item.stats)}</p>,
+                <p>Inteligence: {display(item.stats.curr_inteligence, item.stats)}</p>,
+                <p>Spirit: {display(item.stats.curr_spirit, item.stats)}</p>,
                 <IcontButton icon={StarOutlined} text="Stats" action={() => {
                   showModalStat(item.id)
                 }}/>,
@@ -103,41 +115,7 @@ export function Recruits({recruits, display}){
             </List.Item>
           )}
         />
-          
-          
-      {/*<Modal title="Schedule" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-        
-        {daysOfWeek.map((day) => {
-          const dayData = modalData.filter((el) => {
-            if (el[1][0] == day){
-              return el
-            }          
-          })
-          return (<>
-          <h2>{day}</h2>
-          <List
-          itemLayout="vertical"
-          dataSource={dayData}
-          renderItem={(item, index) => (
-            <List.Item>
-              <List.Item.Meta
-                title={<a href="https://ant.design">{item[0].name}</a>}
-                description={`
-                ${item[1][0]} |
-                day: ${item[1][1]} |
-                hour: ${item[1][2]} |
-                `}
-              />
-              <Progress type="circle" percent={(item[0].progress/item[0].turns)*100} />
-            </List.Item>
-          )}
-          />
-          </>)
-        
-        })}
-      </Modal>*/}
-      
-      
+     
       <SchedulerModal 
         title="Schedule"
         open={isModalOpen}
@@ -146,9 +124,9 @@ export function Recruits({recruits, display}){
         modalData={modalData} />
         
       <Modal title="Stats" open={isModalStatsOpen} onOk={handleStatsOk} onCancel={handleStatsCancel}> 
-          <p>Strength: {modalData.curr_strength}</p>
-          <p>Inteligence: {modalData.curr_inteligence}</p>
-          <p>Spirit: {modalData.curr_spirit}</p>
+          <p>Strength: {display(modalData.curr_strength, modalData)}</p>
+          <p>Inteligence: {display(modalData.curr_inteligence, modalData)}</p>
+          <p>Spirit: {display(modalData.curr_spirit, modalData)}</p>
           <p>Weight: {modalData?.weight}</p>
           <p>Height: {modalData?.height}</p>
           <p>Calories: {modalData?.calories}</p>
