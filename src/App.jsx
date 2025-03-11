@@ -4,7 +4,8 @@ HomeOutlined,
 SunOutlined,
 ProductFilled,
 ThunderboltFilled,
-SignalFilled,} from "@ant-design/icons"
+SignalFilled,
+OrderedListOutlined} from "@ant-design/icons"
 import { useState } from 'react'
 import { IconText } from "./components"
 import { changeStatByTurn, manageFatigue, checkReqs, looseGainWeight } from "./global"
@@ -15,7 +16,8 @@ Todo,
 Training,
 Calories,
 BmiCalc,
-Stress } from "./pages"
+Stress,
+CreateSchedule } from "./pages"
 const daysOfWeek = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
 
 
@@ -356,11 +358,12 @@ function SideMenu() {
             {label: "Home", key:"/", icon: <HomeOutlined/>},
             {label: "Missions", key:"/Missions", icon: <ProductFilled/>},
             {label: "Training", key:"/Training", icon: <ThunderboltFilled/>},
-            {label: "Food", key:"/Food", icon: <ThunderboltFilled/>},
-            {label: "Calories", key:"/Calories", icon: <ThunderboltFilled/>},
-            {label: "BmiCalc", key:"/BmiCalc", icon: <ThunderboltFilled/>},
-            {label: "Stress", key:"/Stress", icon: <ThunderboltFilled/>},
-            {label: "Todo", key:"/Todo", icon: <SignalFilled/>},
+            {label: "Create Schedule", key:"/Create_Schedule", icon: <OrderedListOutlined />},
+//            {label: "Food", key:"/Food", icon: <ThunderboltFilled/>},
+//            {label: "Calories", key:"/Calories", icon: <ThunderboltFilled/>},
+//            {label: "BmiCalc", key:"/BmiCalc", icon: <ThunderboltFilled/>},
+//            {label: "Stress", key:"/Stress", icon: <ThunderboltFilled/>},
+//            {label: "Todo", key:"/Todo", icon: <SignalFilled/>},
             
             
         ]}>
@@ -422,6 +425,10 @@ function Content(operations) {
             <Route 
                 path="/Stress" 
                 element={<Stress operations={operations} />}
+            />
+            <Route 
+                path="/Create_Schedule" 
+                element={<CreateSchedule/>}
             />
             <Route 
                 path="/Todo" 
