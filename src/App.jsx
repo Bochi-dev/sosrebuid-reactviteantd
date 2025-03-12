@@ -8,7 +8,7 @@ SignalFilled,
 OrderedListOutlined} from "@ant-design/icons"
 import { useState } from 'react'
 import { IconText } from "./components"
-import { changeStatByTurn, manageFatigue, checkReqs, looseGainWeight } from "./global"
+import { changeStatByTurn, manageFatigue, checkReqs, looseGainWeight, schedule1, schedule2} from "./global"
 import { Route, Routes, useNavigate, useLocation } from "react-router-dom"
 import { Main,
 Missions,
@@ -333,7 +333,7 @@ function App() {
             flex: 1,
         }}>
             <SideMenu/>
-            <Content operations={[x,setX,recruits,setRecruits,timeOperations]}/>
+            <Content operations={[x,setX,recruits,setRecruits,timeOperations, [schedule1, schedule2]]}/>
         </div>
     </>
   )
@@ -428,7 +428,7 @@ function Content(operations) {
             />
             <Route 
                 path="/Create_Schedule" 
-                element={<CreateSchedule/>}
+                element={<CreateSchedule operations={operations}/>}
             />
             <Route 
                 path="/Todo" 

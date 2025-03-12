@@ -5,8 +5,8 @@ MessageOutlined,
 MenuOutlined,
 ArrowRightOutlined} from "@ant-design/icons"
 const daysOfWeek = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
-import { GameCard, IconText, SchedulerModal} from "../../components"
-import { debuffByFatigue } from "../../global"
+import { GameCard, IconText, SchedulerModal} from "../../../components"
+import { debuffByFatigue } from "../../../global"
 import {Space, List, Avatar, Button, Modal, Progress, Select} from "antd"
 import React from 'react';
 import { useState } from 'react'
@@ -21,7 +21,7 @@ const IcontButton = ({icon, text, action}) => (
     </Space>
 )
 
-export function Recruits({recruits}){
+export function Recruits({recruits, setRecruits, schedules}){
 
     const data = [... recruits];
     const [modalData, setModalData] = useState([])
@@ -103,6 +103,38 @@ export function Recruits({recruits}){
                 <IcontButton icon={MenuOutlined} text="Schedule" action={() => {
                   showModal(item.id)
                 }}/>,
+                <Select 
+                style={{
+                width: '100%',
+                }}
+                
+                placeholder="Select a schedule"
+                
+                
+                onChange={(value) => {
+                  
+                  setRecruits((prev) => {
+                    return prev.map((recruit) => {
+                      const newRecruit = {... recruit}
+                      if (recruit.id == item.id){
+                        console.log(value)
+                        newRecruit.schedule = value
+                      }
+                      return newRecruit
+                    })
+                  })
+                  
+                  
+                }}
+                
+                options={[{label:"None", value:null}, ... schedules.map((r) => {
+                return {
+                  label: r.title,
+                  value: r.id,
+                }
+              
+              })]}
+                />
               ]}
             >
               <List.Item.Meta
