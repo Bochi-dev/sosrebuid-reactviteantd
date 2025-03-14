@@ -21,7 +21,7 @@ const IcontButton = ({icon, text, action}) => (
     </Space>
 )
 
-export function Recruits({recruits, setRecruits, schedules}){
+export function Recruits({recruits, setRecruits, schedules, turns}){
 
     const data = [... recruits];
     const [modalData, setModalData] = useState([])
@@ -86,6 +86,68 @@ export function Recruits({recruits, setRecruits, schedules}){
         
     }
     
+    
+    
+    
+    const showCurrentAction = (actions) => {
+        /*
+        we are gonna look if it has a schedule assigned
+        if not it will say "doing nothing"
+        if it has a schedule assigned Im gonna show what thing 
+        they currently doing based on the schedule
+        sleep and eating are fine
+        */
+    
+    
+        console.log(actions)
+        if (actions.length == 0){
+            return "doing nothing"
+        }
+        
+        
+        
+    }
+    
+    const showSchedule = (schedule, curr_actions) => {
+        if (schedule == null){
+            return "No schedule assigned"
+        }
+    
+//       getting the schedule by its id
+        schedule = schedules.filter((el) => {
+            if (el.id == schedule){
+                return el
+            }
+        })[0]
+
+//        with the schedule determine if it is working hours
+        const schedule_actions = schedule.actions
+        const index = turns - 1
+        
+        const action = schedule_actions[index]
+        
+        const type = action.type
+        let action_string = action.name         
+        /*        
+        look if the recruit has a mission or something to do 
+        while it is working hours and display it
+        */
+        
+        if (type == "work"){
+            if (curr_actions.length > 0){
+                const [mission, timeops] = curr_actions[0]
+                action_string += ` (${mission.name})`
+            } else {
+                console.log("What")
+                action_string += " (Free Time/Doing nothing)"
+            }
+            
+        }
+        
+        
+        return `${action_string}`
+    }
+    
 
     return (<>
         <List
@@ -107,7 +169,7 @@ export function Recruits({recruits, setRecruits, schedules}){
                 style={{
                 width: '100%',
                 }}
-                
+                defaultValue={item.schedule}
                 placeholder="Select a schedule"
                 
                 
@@ -139,10 +201,9 @@ export function Recruits({recruits, setRecruits, schedules}){
             >
               <List.Item.Meta
                 avatar={<Avatar src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${index}`} />}
-                title={<a href="https://ant.design">{item.name}</a>}
-                description="Lorem impsum"
+                title={<a href="https://ant.design">{item.name}</a>} 
+                description={showSchedule(item.schedule, item.curr_actions)}               
               />
-              
             </List.Item>
           )}
         />

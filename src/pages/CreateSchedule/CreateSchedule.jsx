@@ -7,8 +7,8 @@ const hours = [
   "4:00 PM", "5:00 PM", "6:00 PM", "7:00 PM", "8:00 PM", "9:00 PM", "10:00 PM", "11:00 PM"
 ];
 import { Recruits } from "./Recruits"
-import { changeStatByTurn, manageFatigue, checkReqs, looseGainWeight, schedule1, schedule2} from "../../global"
-
+import { changeStatByTurn, manageFatigue, checkReqs, looseGainWeight, schedule1, schedule2, daysOfWeek} from "../../global"
+import { MissionCard } from "../../components"
 
 
 
@@ -56,19 +56,11 @@ let days = 0
 
 
 
-
-
-
-
-
-
-
-
 export const CreateSchedule = ({operations}) => {
-
+    const [dayindex, setDayindex] = useState(0)
     const [turns, setTurns] = useState(1)
     const [days, setDays] = useState(1)
-
+    const testtimeOperations = [daysOfWeek[dayindex], days, turns]
 
     const [missions, setMissions, recruits, setRecruits, timeOperations, schedules] = operations.operations
     
@@ -77,11 +69,7 @@ export const CreateSchedule = ({operations}) => {
         newPrev["schedule"] = null
         return newPrev
     }))
-    
-    
-    
-    
-    
+ 
     const [schedule1, schedule2] = schedules
     const [schedule, setSchedule] = useState(schedule1)
     
@@ -112,10 +100,21 @@ export const CreateSchedule = ({operations}) => {
     
   /*Next turn is used to the game keeps moving forward*/
   function nextTurn () {
+  
+  
+    /* testing to see if converting the turn to zero */
     
-    
-   
-    
+    const hoursAday = 24
+    if (turns == hoursAday) {
+      setDays((prev) => {        
+        setTurns((prev) => {
+          return 1
+        })          
+        return prev += 1    
+      })
+    }
+  
+  
     /*substract 10% of its original value to any number*/
     const minus1toStats = (stat) => {
         const tenpercent = stat * 0.1
@@ -123,7 +122,6 @@ export const CreateSchedule = ({operations}) => {
             return stat -= tenpercent
         }
         return stat
-        
     }
     
     /*This will replace the current way we are adding stats to
@@ -155,75 +153,37 @@ export const CreateSchedule = ({operations}) => {
             return el
           })[0]
           
-          const index = turn-1
-          const actionOfHour = recruitSchedule.actions[index]
+          const index = turns-1    
+          const reward = recruitSchedule.actions[index]
           
           if (reward.type == "calories"){
             looseGainWeight(newStats, reward.amount)
           } else if (reward.type == "fatigue"){
-           manageFatigue(newStats, reward.amount)                  
-          } else if (reward.type == "strength"){
-            newStats.curr_strength += reward.amount
-          } else if (reward.type == "inteligence"){
-            newStats.curr_inteligence += reward.amount
-          } else if (reward.type == "spirit"){
-            newStats.curr_spirit += reward.amount
-          }
+            manageFatigue(newStats, reward.amount)                  
+          } else if ( reward.type == "work" || reward.type == "training" ){
           
-          
-          
-          
-          
-          
-          /*
-//          Iterate through the missions of the recruits
-          newRecruit.curr_actions = newRecruit.curr_actions.map((action, index1) => {
-            const NewAction = [... action]
+            const newCurr_actions = newRecruit.curr_actions
             
-            const [mission, timeops] = NewAction
-            const newMission = {... mission}
-            
-            
-            
-//            we check if the missions is scheduled for that day
-            if (timeops[0] == daysOfWeek[dayindex]) {
-                newMission.progress += 1
-                if (newMission.progress > newMission.turns){
-                  newMission.progress = 0
-                  
-                  if (checkReqs(mission.reqs, newStats)){ 
-                      const newRewards = newMission.reward.map((reward) => {
-                            if (reward.type == "calories"){
-                              looseGainWeight(newStats, reward.amount)
-                            } else if (reward.type == "fatigue"){
-                             manageFatigue(newStats, reward.amount)                  
-                            } else if (reward.type == "strength"){
-                              newStats.curr_strength += reward.amount
-                            } else if (reward.type == "inteligence"){
-                              newStats.curr_inteligence += reward.amount
-                            } else if (reward.type == "spirit"){
-                              newStats.curr_spirit += reward.amount
-                            }
-                            return reward
-                          })
-                      newMission.reward = newRewards
-                  }
-                    We look into the current turn
-
-
-
-                  
+            if (newCurr_actions.length > 0){
+              const action = newCurr_actions[0]
+              const [mission, timeops] = action
+              console.log(mission)
+              const missionRewards = mission.reward
+              missionRewards.forEach((value,index,array) => {
+                
+                if (value.type == "strength"){
+                  newStats.curr_strength += value.amount
+                } else if (value.type == "inteligence"){
+                  newStats.curr_inteligence += value.amount
+                } else if (value.type == "spirit"){
+                  newStats.curr_spirit += value.amount
                 }
+              })
             }
-            
-            
-            console.log(newMission, timeops,index1)
-            return [newMission, timeops]
-          })*/
-          
-          
-//          newRecruit.stats = changeStatByTurn(newStats, turns)
-          
+
+          }
+             
+          newRecruit.stats = changeStatByTurn(newStats, turns)
           
           newRecruit.stats = newStats
           return newRecruit
@@ -235,22 +195,12 @@ export const CreateSchedule = ({operations}) => {
     
     
     
-    const hoursAday = 24
+    
     setTurns((prev) => {
         return prev += 1
       })
     
-    setDays((prev) => {
-      if (turns >= hoursAday) {
-        setTurns((prev) => {
-          return prev = 0
-        })
-        
-        return prev += 1
-      } else {
-        return prev
-      }
-    })
+    
     
     if (turns >= hoursAday) {
       setDayindex((prev) => {
@@ -261,48 +211,64 @@ export const CreateSchedule = ({operations}) => {
         return prev += 1
       })
     }
-    
-    
-    
-    
-    
-    
-    
+
   }
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    const [work, setWork] = useState([
+        {
+          id:1,
+          type:"training",
+          name:"Excercise",
+          reqs:[
+            {type:"strength", amount: 10, label: "10 Strength"},
+            {type:"spirit", amount: 10, label: "10 Spirit"},
+          ],
+          subs:[],
+          reward:[{type:"strength", amount:2, label:"+2 Strength"}],
+          progress:0,
+          turns: 1,
+          participants:[]
+        },
+        {
+          id:2, 
+          type:"work", 
+          name:"Lab Research (Work)", 
+          reqs:[],
+          subs:[], 
+          reward:[{type:"inteligence", amount:5, label:"+5 Inteligence"}], 
+          progress:0, 
+          turns: 1, 
+          participants:[]
+        },
+        {
+          id:3, 
+          type:"training", 
+          name:"Research in library",
+          reqs:[], 
+          subs:[], 
+          reward:[{type:"inteligence", amount:2, label:"+2 Inteligence"}], 
+          progress:0, 
+          turns: 1, 
+          participants:[]
+        }
 
-
+        ])
+    
+    
+ 
     return <>
-    
+    <h3>{daysOfWeek[dayindex]}, Days: {days} Turns: {turns}</h3>
     <Button onClick={nextTurn}>Next Turn</Button>
     
-    <Recruits recruits={testRecruits} setRecruits={setTestRecruits} schedules={schedules}/>
+    <Recruits recruits={testRecruits} setRecruits={setTestRecruits} schedules={schedules} turns={turns}/>
+    
+    <MissionCard 
+      missions={work}
+      setMisssions={setWork}
+      operations={[testRecruits, setTestRecruits]}
+      timeOperations={testtimeOperations}
+    />
     
     <Button>create new one</Button><Select placeholder={"Select one to Edit"}/>
     

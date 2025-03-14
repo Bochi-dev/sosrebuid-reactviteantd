@@ -140,9 +140,9 @@ function App() {
   
   
   const [missions, setMissions] = useState([
-    {id:1, type:"mission", name:"Complete mission 1", reqs:[], subs:[2,3], reward:[{type:"food", amount:30, label:"+30 Food"}], progress:0, turns: 10, participants:[]},
-    {id:2, type:"mission", name:"Complete mission 2", reqs:[], subs:[3], reward:[{type:"food", amount:20, label:"+20 Food"}], progress:0 ,turns: 5, participants:[]},
-    {id:3, type:"mission", name:"Complete mission 3", reqs:[], subs:[], reward:[{type:"food", amount:10, label:"+10 Food"}], progress:0 ,turns: 2, participants:[]},
+    {id:1, type:"mission", name:"Complete mission 1", reqs:[], subs:[2,3], reward:[{type:"food", amount:500, label:"Eat 1 food ration"}], progress:0, turns: 10, participants:[]},
+    {id:2, type:"mission", name:"Complete mission 2", reqs:[], subs:[3], reward:[{type:"food", amount:1000, label:"Eat 2 food rations"}], progress:0 ,turns: 5, participants:[]},
+    {id:3, type:"mission", name:"Complete mission 3", reqs:[], subs:[], reward:[{type:"food", amount:1500, label:"Eat 3 food rations"}], progress:0 ,turns: 2, participants:[]},
   ])
   
   let x
