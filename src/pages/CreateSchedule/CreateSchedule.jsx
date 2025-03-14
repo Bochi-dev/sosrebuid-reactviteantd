@@ -68,6 +68,10 @@ export const CreateSchedule = ({operations}) => {
     const [testRecruits, setTestRecruits] = useState(recruits.map((prev) => {
         const newPrev = {... prev}
         newPrev["schedule"] = null
+        
+        /*chaging the curr actions array to null, so that we can, in the mission card, assign them a mission to do
+        for the day, only one!*/
+//        newPrev.curr_actions = null
         return newPrev
     }))
  

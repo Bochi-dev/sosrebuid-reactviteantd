@@ -105,10 +105,12 @@ export function MissionCard ({missions, setMisssions, operations, timeOperations
                 })
               }}
               options={recruits.map((r) => {
-                return {
+                const curr_actions = r.curr_actions
+                const length = curr_actions.length
+                return (length == 0) ? {
                   label: r.name,
-                  value: r.id,
-                }
+                  value: r.id,                 
+                } : {}
               
               })}
             />
