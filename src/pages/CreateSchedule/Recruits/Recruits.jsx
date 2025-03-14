@@ -21,7 +21,7 @@ const IcontButton = ({icon, text, action}) => (
     </Space>
 )
 
-export function Recruits({recruits, setRecruits, schedules, turns}){
+export function Recruits({recruits, setRecruits, schedules, turns, disableSelect}){
 
     const data = [... recruits];
     const [modalData, setModalData] = useState([])
@@ -122,7 +122,11 @@ export function Recruits({recruits, setRecruits, schedules, turns}){
 
 //        with the schedule determine if it is working hours
         const schedule_actions = schedule.actions
+        
         const index = turns - 1
+        
+        
+        console.log("index: ",index, "length: ", schedule_actions.length)
         
         const action = schedule_actions[index]
         
@@ -165,7 +169,8 @@ export function Recruits({recruits, setRecruits, schedules, turns}){
                 <IcontButton icon={MenuOutlined} text="Schedule" action={() => {
                   showModal(item.id)
                 }}/>,
-                <Select 
+                <Select
+                disabled={disableSelect} 
                 style={{
                 width: '100%',
                 }}

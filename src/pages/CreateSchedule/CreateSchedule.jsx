@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Button, Select, Card, Avatar, List } from "antd"
+import { Button, Select, Card, Avatar, List, Modal } from "antd"
 import { Space, Table, Tag } from 'antd';
 const hours = [
   "12:00 AM", "1:00 AM", "2:00 AM", "3:00 AM", "4:00 AM", "5:00 AM", "6:00 AM", "7:00 AM",
@@ -8,7 +8,7 @@ const hours = [
 ];
 import { Recruits } from "./Recruits"
 import { changeStatByTurn, manageFatigue, checkReqs, looseGainWeight, schedule1, schedule2, daysOfWeek} from "../../global"
-import { MissionCard } from "../../components"
+import { MissionCard } from "./MissionCard"
 
 
 
@@ -57,6 +57,7 @@ let days = 0
 
 
 export const CreateSchedule = ({operations}) => {
+    const [disableSelect, setDisableSelect] = useState(false)
     const [dayindex, setDayindex] = useState(0)
     const [turns, setTurns] = useState(1)
     const [days, setDays] = useState(1)
@@ -94,6 +95,35 @@ export const CreateSchedule = ({operations}) => {
     
     
     
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const showModal = () => {
+      setIsModalOpen(true);
+    };
+
+    const handleOk = () => {
+      setIsModalOpen(false);
+      nextTurn()
+    };
+
+    const handleCancel = () => {
+      setIsModalOpen(false);
+    };
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     
@@ -105,14 +135,34 @@ export const CreateSchedule = ({operations}) => {
     /* testing to see if converting the turn to zero */
     
     const hoursAday = 24
-    if (turns == hoursAday) {
-      setDays((prev) => {        
-        setTurns((prev) => {
+    if (turns >= hoursAday) {
+      setDisableSelect((prev) => {
+        return false
+      })
+      
+      
+      setTurns((prev) => {
           return 1
-        })          
+        }) 
+        
+        
+      setDays((prev) => {        
         return prev += 1    
       })
+    } else {
+      
+      setDisableSelect((prev) => {
+        return true
+      })
+    
     }
+    
+    setTurns((prev) => {
+      return prev += 1
+    })
+    
+    
+    console.log("index in schedule page (previous index): ", turns - 1)
   
   
     /*substract 10% of its original value to any number*/
@@ -156,6 +206,8 @@ export const CreateSchedule = ({operations}) => {
           const index = turns-1    
           const reward = recruitSchedule.actions[index]
           
+          
+          
           if (reward.type == "calories"){
             looseGainWeight(newStats, reward.amount)
           } else if (reward.type == "fatigue"){
@@ -196,9 +248,7 @@ export const CreateSchedule = ({operations}) => {
     
     
     
-    setTurns((prev) => {
-        return prev += 1
-      })
+    
     
     
     
@@ -255,19 +305,35 @@ export const CreateSchedule = ({operations}) => {
 
         ])
     
-    
+    const planningMessage = (disableSelect) => {
+      if (turns == 24){
+        return "Review"
+      }
+      return disableSelect ? "Executing" : "Planning"
+    }
  
     return <>
-    <h3>{daysOfWeek[dayindex]}, Days: {days} Turns: {turns}</h3>
-    <Button onClick={nextTurn}>Next Turn</Button>
+    <h3>{daysOfWeek[dayindex]}, Days: {days} Turns: {turns}, phase: {planningMessage(disableSelect)} </h3>
+    <Button onClick={() => {
+      
+      if (turns != 24){
+        nextTurn()
+      } else {
+        setIsModalOpen(true)
+      }
+      
+    }}>Next Turn</Button>
     
-    <Recruits recruits={testRecruits} setRecruits={setTestRecruits} schedules={schedules} turns={turns}/>
+    <Recruits recruits={testRecruits} setRecruits={setTestRecruits} schedules={schedules} turns={turns} disableSelect={disableSelect}/>
     
-    <MissionCard 
+    <MissionCard
+      
       missions={work}
       setMisssions={setWork}
       operations={[testRecruits, setTestRecruits]}
       timeOperations={testtimeOperations}
+      disableSelect={disableSelect}
+      
     />
     
     <Button>create new one</Button><Select placeholder={"Select one to Edit"}/>
@@ -310,5 +376,8 @@ export const CreateSchedule = ({operations}) => {
         
     </div>
     
+    <Modal open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+      <h1>Do you wanna finish the day?</h1>
+    </Modal>
     </>
 }
