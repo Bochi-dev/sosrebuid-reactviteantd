@@ -123,7 +123,7 @@ export function Recruits({recruits, setRecruits, schedules, turns, disableSelect
 //        with the schedule determine if it is working hours
         const schedule_actions = schedule.actions
         
-        const index = turns - 1
+        const index = turns
         
         
         console.log("index: ",index, "length: ", schedule_actions.length)

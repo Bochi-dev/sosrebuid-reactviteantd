@@ -59,7 +59,7 @@ let days = 0
 export const CreateSchedule = ({operations}) => {
     const [disableSelect, setDisableSelect] = useState(false)
     const [dayindex, setDayindex] = useState(0)
-    const [turns, setTurns] = useState(1)
+    const [turns, setTurns] = useState(0)
     const [days, setDays] = useState(1)
     const testtimeOperations = [daysOfWeek[dayindex], days, turns]
 
@@ -134,7 +134,7 @@ export const CreateSchedule = ({operations}) => {
   
     /* testing to see if converting the turn to zero */
     
-    const hoursAday = 24
+    const hoursAday = 23
     if (turns >= hoursAday) {
       setDisableSelect((prev) => {
         return false
@@ -142,7 +142,7 @@ export const CreateSchedule = ({operations}) => {
       
       
       setTurns((prev) => {
-          return 1
+          return 0
         }) 
         
         
@@ -154,12 +154,13 @@ export const CreateSchedule = ({operations}) => {
       setDisableSelect((prev) => {
         return true
       })
+      setTurns((prev) => {
+        return prev += 1
+      })
     
     }
     
-    setTurns((prev) => {
-      return prev += 1
-    })
+    
     
     
     console.log("index in schedule page (previous index): ", turns - 1)
@@ -203,7 +204,7 @@ export const CreateSchedule = ({operations}) => {
             return el
           })[0]
           
-          const index = turns-1    
+          const index = turns    
           const reward = recruitSchedule.actions[index]
           
           
@@ -313,10 +314,10 @@ export const CreateSchedule = ({operations}) => {
     }
  
     return <>
-    <h3>{daysOfWeek[dayindex]}, Days: {days} Turns: {turns}, phase: {planningMessage(disableSelect)} </h3>
+    <h3>{daysOfWeek[dayindex]}, Days: {days} Turns: {turns+1}, phase: {planningMessage(disableSelect)} </h3>
     <Button onClick={() => {
       
-      if (turns != 24){
+      if (turns != 23){
         nextTurn()
       } else {
         setIsModalOpen(true)
