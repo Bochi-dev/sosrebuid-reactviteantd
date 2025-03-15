@@ -387,8 +387,8 @@ function Header({days, dayName, turns, nextTurn}) {
         }}
     >
     <Space>
-      <IconText icon={SunOutlined} text={`${dayName}, Days: ${days}`}/>
-      Turns: {turns}
+      <IconText icon={SunOutlined} text={`${dayName}, Days: ${days} Turns: ${turns}`}/>
+      
       <Button onClick={() => {
         nextTurn()
       }}>Next Turn</Button>
