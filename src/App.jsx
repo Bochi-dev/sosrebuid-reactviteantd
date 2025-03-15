@@ -5,7 +5,8 @@ SunOutlined,
 ProductFilled,
 ThunderboltFilled,
 SignalFilled,
-OrderedListOutlined} from "@ant-design/icons"
+OrderedListOutlined,
+BuildOutlined} from "@ant-design/icons"
 import { useState } from 'react'
 import { IconText } from "./components"
 import { changeStatByTurn, manageFatigue, checkReqs, looseGainWeight, schedule1, schedule2} from "./global"
@@ -17,7 +18,8 @@ Training,
 Calories,
 BmiCalc,
 Stress,
-CreateSchedule } from "./pages"
+CreateSchedule,
+Buildings } from "./pages"
 const daysOfWeek = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
 
 
@@ -141,8 +143,8 @@ function App() {
   
   const [missions, setMissions] = useState([
     {id:1, type:"mission", name:"Complete mission 1", reqs:[], subs:[2,3], reward:[{type:"food", amount:500, label:"Eat 1 food ration"}], progress:0, turns: 10, participants:[]},
-    {id:2, type:"mission", name:"Complete mission 2", reqs:[], subs:[3], reward:[{type:"food", amount:1000, label:"Eat 2 food rations"}], progress:0 ,turns: 5, participants:[]},
-    {id:3, type:"mission", name:"Complete mission 3", reqs:[], subs:[], reward:[{type:"food", amount:1500, label:"Eat 3 food rations"}], progress:0 ,turns: 2, participants:[]},
+    {id:2, type:"mission", name:"Complete mission 2", reqs:[], subs:[3], reward:[{type:"food", amount:1000, label:"Eat 2 food rations"}], progress:0, turns: 5, participants:[]},
+    {id:3, type:"mission", name:"Complete mission 3", reqs:[], subs:[], reward:[{type:"food", amount:1500, label:"Eat 3 food rations"}], progress:0, turns: 2, participants:[]},
   ])
   
   let x
@@ -359,6 +361,7 @@ function SideMenu() {
             {label: "Missions", key:"/Missions", icon: <ProductFilled/>},
             {label: "Training", key:"/Training", icon: <ThunderboltFilled/>},
             {label: "Create Schedule", key:"/Create_Schedule", icon: <OrderedListOutlined />},
+            {label: "Buildings", key:"/Buildings", icon: <BuildOutlined />},
 //            {label: "Food", key:"/Food", icon: <ThunderboltFilled/>},
 //            {label: "Calories", key:"/Calories", icon: <ThunderboltFilled/>},
 //            {label: "BmiCalc", key:"/BmiCalc", icon: <ThunderboltFilled/>},
@@ -430,6 +433,12 @@ function Content(operations) {
                 path="/Create_Schedule" 
                 element={<CreateSchedule operations={operations}/>}
             />
+            
+            <Route 
+                path="/Buildings" 
+                element={<Buildings operations={operations}/>}
+            />
+            
             <Route 
                 path="/Todo" 
                 element={<Todo/>}
