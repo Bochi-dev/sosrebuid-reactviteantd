@@ -52,7 +52,7 @@ export function getStat(stat, stats) {
 
 }
 
-export const checkReqs = (reqs,stats) => {
+export const checkReqs = (reqs, stats, ) => {
   let newReqs = [... reqs]
   newReqs = newReqs.map((req) => {
       const stat = getStat(stats["curr_"+req.type], stats)
@@ -66,9 +66,45 @@ export const checkReqs = (reqs,stats) => {
       return false
   }
   
-  return true
-    
+  return true   
 }
+
+
+export const checkReqsMaterials = (reqs, materials) => {
+
+     const newMaterials = {... materials}
+     let conditions = []
+//     this conditions is to save the substractions to the materials
+//     and apply them at the end IF the condition is true, just so the forEach doesnt
+//      eat up some materials and then return false, that would be dumb
+     let materials_debucted = []
+     reqs.forEach((req) => {
+        if (req.type === "material"){
+            const result = newMaterials[req.name] - req.amount
+            if (result < 0){
+                conditions.push(false)
+            } else {
+                conditions.push(true)
+                materials_debucted.push(req)
+            }
+        }
+     })
+     
+     if (conditions.includes(false)){
+        console.log("FAIL")
+        return [false, materials]
+        
+     } else {
+        materials_debucted.forEach((req) => {
+            newMaterials[req.name] -= req.amount
+        })
+        console.log("SUCCESS")
+        return [true, newMaterials]
+        
+     }
+}
+
+
 
 export const getBMICategory = (bmi) => {
   if (bmi < 18) {

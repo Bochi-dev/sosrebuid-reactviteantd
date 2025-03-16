@@ -1,7 +1,7 @@
 import {useState} from "react"
 import { MissionCard } from "./MissionCard"
 import { BuildingCard } from "./BuildingCard"
-import { daysOfWeek } from "../../global"
+import { daysOfWeek, checkReqsMaterials } from "../../global"
 import { Button, Col, Row, Statistic } from 'antd';
 
 
@@ -48,8 +48,8 @@ export const Buildings = ({operations}) => {
     
     const [materials, setMaterials] = useState({
 
-        cloth: 100,
-        stick: 100,
+        cloth: 5,
+        stick: 6,
 
     })
     
@@ -63,14 +63,20 @@ export const Buildings = ({operations}) => {
           type:"building",
           name:"Build Tent",
           reqs:[
-            {type:"cloth", amount: 2, label: "2 Cloth"},
+            {type:"material", name:"cloth", amount: 2, label: "2 Cloth"},
+            {type:"material", name:"stick", amount: 2, label: "2 Sticks"},
+            
+//            now there is another type of requirement, we will have to clasify the stats as so
+//            stats will have the type: "stat" and the materials like cloth, sticks, will 
+//            clasify as materials, but that will be for later
+            
             {type:"strength", amount: 10, label: "10 Strength"},
             {type:"spirit", amount: 10, label: "10 Spirit"},
             
           ],
           reward:[{type:"building", id:1, label: "Construction of Tent"}],
           progress:0,
-          turns: 20,
+          turns: 5,
           participants:[],
           subs: []
         },
@@ -149,17 +155,23 @@ export const Buildings = ({operations}) => {
                         if (missionBuilding.id == missionId){
                             
                             console.log("Updating progress for:", missionId);  
-                            newMissionBuilding.progress += 1
-                            if (newMissionBuilding.progress >= newMissionBuilding.turns){
+                           
                             
-                                /*YOU LEFT OFF HERE*/
-                            
+                            const [condition, newMaterials] = checkReqsMaterials(newMissionBuilding.reqs, materials)                                                      
+                            if (newMissionBuilding.progress >= newMissionBuilding.turns){                                                     
+                                                          
                                 newMissionBuilding.progress = 0
-                                const finishedBuilding = buildingslist.filter(b => b)[0]
+                                const finishedBuilding = buildingslist.filter(b => b.id === newMissionBuilding.id)[0]
+                                
+                                
                                 setBuildings((prev) => {
-                                    return [... prev, ]
+                                    console.log("buildings: ", prev)
+                                    return [... prev, finishedBuilding]
                                 })
                                 
+                            } else if (condition){
+                              setMaterials(newMaterials) 
+                              newMissionBuilding.progress += 1
                             }
                         }
                         
