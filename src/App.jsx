@@ -6,7 +6,9 @@ ProductFilled,
 ThunderboltFilled,
 SignalFilled,
 OrderedListOutlined,
-BuildOutlined} from "@ant-design/icons"
+BuildOutlined,
+RadarChartOutlined,
+CompassOutlined} from "@ant-design/icons"
 import { useState } from 'react'
 import { IconText } from "./components"
 import { changeStatByTurn, manageFatigue, checkReqs, looseGainWeight, schedule1, schedule2} from "./global"
@@ -19,7 +21,9 @@ Calories,
 BmiCalc,
 Stress,
 CreateSchedule,
-Buildings } from "./pages"
+Buildings, 
+Classes,
+Exploration} from "./pages"
 const daysOfWeek = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
 
 
@@ -270,13 +274,6 @@ function App() {
     return newPrev1
     })
     
-    
-    
-    
-    
-    
-    
-    
     const hoursAday = 24
     setTurns((prev) => {
         return prev += 1
@@ -361,7 +358,10 @@ function SideMenu() {
             {label: "Missions", key:"/Missions", icon: <ProductFilled/>},
             {label: "Training", key:"/Training", icon: <ThunderboltFilled/>},
             {label: "Create Schedule", key:"/Create_Schedule", icon: <OrderedListOutlined />},
-            {label: "Buildings", key:"/Buildings", icon: <BuildOutlined />},
+            {label: "Classes", key:"/Classes", icon: <RadarChartOutlined />},
+            {label: "Exploration", key:"/Exploration", icon: <CompassOutlined />},
+            
+            {label: "Buildings (WIP)", key:"/Buildings", icon: <BuildOutlined />, disabled:true},
 //            {label: "Food", key:"/Food", icon: <ThunderboltFilled/>},
 //            {label: "Calories", key:"/Calories", icon: <ThunderboltFilled/>},
 //            {label: "BmiCalc", key:"/BmiCalc", icon: <ThunderboltFilled/>},
@@ -437,6 +437,16 @@ function Content(operations) {
             <Route 
                 path="/Buildings" 
                 element={<Buildings operations={operations}/>}
+            />
+            
+            <Route 
+                path="/Exploration" 
+                element={<Exploration operations={operations}/>}
+            />
+            
+            <Route 
+                path="/Classes" 
+                element={<Classes operations={operations}/>}
             />
             
             <Route 

@@ -20,8 +20,15 @@ const Materials = ({list}) => {
 const buildingslist = [
         {
         id: 1,
+        type: "building",
         name: "Tent",
-        recruits:[],
+        label: "When sleeping here your fatigue will decrease even more per hour of rest",
+        in: 0,
+        space: 2,
+        participants:[],
+        bonuses: [
+            {type: "fatigue", amount: 0.3, label: "30% more effectiveness when resting"}
+        ]
         /*WIP work in progress*/
         
         },
@@ -40,15 +47,24 @@ export const Buildings = ({operations}) => {
     const testtimeOperations = [daysOfWeek[dayindex], days, turns]
 
 
-
+    
 
 
 
     const [trainings, setTrainings, recruits, setRecruits, timeOperations] = operations.operations
     
+    
+    
+    const [testRecruits, setTestRecruits] = useState(recruits.map((r) => {
+        return {... r, bonuses:[]}
+    }))
+    
+    
+    
+    
     const [materials, setMaterials] = useState({
 
-        cloth: 5,
+        cloth: 6,
         stick: 6,
 
     })
@@ -60,7 +76,7 @@ export const Buildings = ({operations}) => {
     const [buildBuildings, setBuildBuildings] = useState([
         {
           id:1,
-          type:"building",
+          type:"construction",
           name:"Build Tent",
           reqs:[
             {type:"material", name:"cloth", amount: 2, label: "2 Cloth"},
@@ -93,7 +109,7 @@ export const Buildings = ({operations}) => {
     note: this doesnt make much sense but its the only way
     to assign the participants a propper schedule
     */    
-    setTrainings((ts) => {      
+    /*setTrainings((ts) => {      
       ts.map((t) => {      
         if (t.participants.length >= 1) {
           t.participants = []
@@ -102,7 +118,7 @@ export const Buildings = ({operations}) => {
         }      
       })
       return ts
-    })
+    })*/
     
     
     /*substract 10% of its original value to any number*/
@@ -127,7 +143,7 @@ export const Buildings = ({operations}) => {
     console.log("-------------------------------------------")
     
     
-    setRecruits((prev1) => {
+    setTestRecruits((prev1) => {
         /*Iterate through the recruits*/
         const newPrev1 = prev1.map((recruit,index) => {
           
@@ -144,40 +160,47 @@ export const Buildings = ({operations}) => {
             
             
 //            if mission type == building
-            if (newMission.type === "building"){
+
+            console.log(mission.type)
+            if (newMission.type === "construction"){
                 
                 const missionId = newMission.id
                 setBuildBuildings((prev) => {
                 
                     return prev.map((missionBuilding) => {
-                        console.log("BEGIN ============================")
-                        const newMissionBuilding = {... missionBuilding}
+                        
                         if (missionBuilding.id == missionId){
                             
                             console.log("Updating progress for:", missionId);  
                            
                             
-                            const [condition, newMaterials] = checkReqsMaterials(newMissionBuilding.reqs, materials)                                                      
-                            if (newMissionBuilding.progress >= newMissionBuilding.turns){                                                     
+                            const [condition, newMaterials] = checkReqsMaterials(missionBuilding.reqs, materials)                                                      
+                            if (missionBuilding.progress >= newMissionmissionBuildingBuilding.turns){                                                     
                                                           
-                                newMissionBuilding.progress = 0
-                                const finishedBuilding = buildingslist.filter(b => b.id === newMissionBuilding.id)[0]
+                                
+                                const finishedBuilding = buildingslist.filter(b => b.id === missionBuilding.id)[0]
                                 
                                 
+//                                add buidling to buildings array
                                 setBuildings((prev) => {
                                     console.log("buildings: ", prev)
+                                    
+                                    
                                     return [... prev, finishedBuilding]
                                 })
                                 
+                                
+                                
                             } else if (condition){
                               setMaterials(newMaterials) 
+                              
+                              
                               newMissionBuilding.progress += 1
+                              
+                              
                             }
                         }
                         
-                        console.log("missionBuilding: ", newMissionBuilding)
-                        console.log("END ============================")
-                        return newMissionBuilding
                     })
                 })
                 
@@ -265,23 +288,7 @@ export const Buildings = ({operations}) => {
     
   }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+ 
     return (<>
     
     {/* 
@@ -301,13 +308,18 @@ export const Buildings = ({operations}) => {
     <MissionCard 
         missions={buildBuildings}
         setMisssions={setBuildBuildings}
-        operations={[recruits, setRecruits]}
+        operations={[testRecruits, setTestRecruits]}
         timeOperations={timeOperations}
     />
     
     <h3>Buildings Owned</h3>
     
-    <BuildingCard buildings={buildings}/>
+    <BuildingCard operations={
+        {"buildings":buildings,
+        "setBuildings":setBuildings,
+        "recruits":testRecruits,
+        "setRecruits":setTestRecruits,}
+        }/>
     
     
     </>)    
