@@ -1,17 +1,112 @@
 import React, { useState } from 'react';
-import {
-  Button,
-  Cascader,
-  DatePicker,
-  Form,
-  Input,
-  InputNumber,
-  Radio,
-  Select,
-  Switch,
-  TreeSelect,
-} from 'antd';
+import { ExplorationForm } from "./ExplorationForm"
+import { TestForm } from "./TestForm"
+import { Space, Divider, List, Typography, Button } from "antd";
 
+
+
+const postApocalypticLocations = [
+  "Abandoned Metro Station",
+  "Crumbling Skyscraper",
+  "Overgrown Mall",
+  "Sunken City",
+  "Collapsed Highway",
+  "Derelict Hospital",
+  "Rusted Shipyard",
+  "Deserted Military Bunker",
+  "Radiation Zone",
+  "Flooded Subway",
+  "Ruined Cathedral",
+  "Forsaken Theme Park",
+  "Empty Oil Rig",
+  "Deserted Research Facility",
+  "Cracked Damsite",
+  "Ghost Town Ranch",
+  "Half-Sunken Prison",
+  "Barren Farmhouse",
+  "Lost Space Station",
+  "Crashed Airplane Wreckage",
+  "Decayed Power Plant",
+  "Mutant-Infested Sewers",
+  "Warlord-Occupied Fortress",
+  "Forgotten Observatory",
+  "Radioactive Swamp",
+  "Sand-Covered Ghost City",
+  "Cratered Battlefield",
+  "Toxic Waste Dump",
+  "Frozen Overpass",
+  "Overgrown Botanical Lab",
+  "Bunker-Turned-Colony",
+  "Foggy Ruins of Suburbia",
+  "Biohazard Quarantine Zone",
+  "Abandoned Fishing Village",
+  "Scavenger Market District",
+  "Hacked Broadcast Station",
+  "Desertified Metropolis",
+  "Ash-Covered Volcano Base",
+  "Train Graveyard",
+  "Cave of the Last Survivors",
+  "Blackout Cybernetic Lab",
+  "Hollowed-Out Mountain Base",
+  "Cursed Amusement Arcade",
+  "Cracked Dystopian Dome",
+  "Shattered Glass Tower",
+  "Giant Sinkhole City",
+  "Booby-Trapped Bunker",
+  "Evacuation Camp Ruins",
+  "Bridge to Nowhere",
+  "Doomsday Cult Temple",
+  "Pirate-Infested Cargo Ship",
+  "Cybernetic Junkyard",
+  "Parched Droughtlands",
+  "Flooded Underpass",
+  "War-Torn Corporate Tower",
+  "Neon-Lit Ruins of Tokyo",
+  "Ancient Ruined Space Elevator",
+  "Hacker-Infested Underground Server Farm",
+  "Twisted Metal Junkheap",
+  "Ghoul-Occupied Library",
+  "Dust Bowl Settlement",
+  "Radio Tower Outpost",
+  "Tainted Reservoir",
+  "Broken Greenhouse Refuge",
+  "Scorched Battlefield",
+  "Sunken Cathedral",
+  "Hollow Subway Tunnels",
+  "Mutated Jungle Village",
+  "Ruined Castle Fortress",
+  "Abandoned Mine Shaft",
+  "Underground Cannibal Lair",
+  "Giant Crater Camp",
+  "Burning Oil Fields",
+  "Frozen Wasteland Depot",
+  "Broken Ferris Wheel Plaza",
+  "Half-Sunken Freighter",
+  "Warped Science Lab",
+  "Bandit-Controlled Airport Terminal",
+  "Barren Nuclear Test Site",
+  "Ruins of the Old Capitol",
+  "Artificial Intelligence Vault",
+  "Weather-Control Experiment Zone",
+  "Lost Colony Ship Wreckage",
+  "Deserted Highway Rest Stop",
+  "Bone-Strewn Battlefield",
+  "Waterlogged Sewer Maze",
+  "Cannibal Fortress",
+  "Shipwrecked Submarine",
+  "Lightning-Struck Ghost Town",
+  "Collapsed Luxury Hotel",
+  "Charred Ruins of a Spaceport",
+  "Scrapyard Settlement",
+  "Cave of the Last Hermit",
+  "Foggy Ruins of a Science Lab",
+  "Hacked Drone Factory",
+  "Fungal-Infected Warehouse",
+  "Swamp-Consumed Prison Yard",
+  "Underground Water Reservoir",
+  "Bio-Dome Overrun with Mutants",
+  "The Forgotten Vault"
+];
 
 const classes = [
         {id:1, name:"presecurer", label:"Pre-Securer", lvl: 1},
@@ -24,145 +119,151 @@ const randomListIndex = list => Math.floor(Math.random() * list.length)
 
 
 export const Exploration = ({operations}) => {
-
-
-  /*I need a list of objects called sites
   
-  random direction (north, south, east)
-  random names (camp site, factory, abandoned site)
-  random objects : {type: "material", name:"stick", label: "Stick", weight: 5}
-  random chance to find it {chance: 1} that will work based on the amount of 
-  places there is available: var findingChance = Math.floor(Math.random()*sites.length)
-  
-  */
+  console.log(operations)
 
-
-
-  const [missions, setMissions, recruits, setRecruits, timeOperations] = operations.operations  
+  const [missions, setMissions, recruits, setRecruits, timeOperations] = operations.operations 
   const [testRecruits, setTestRecruits] = useState(recruits.map(r => {
-    return {... r,
-      class: [
-        [classes[randomListIndex(classes)]],
-        [],
-        [],
-      ]
-    }
-    
-  }))
-  
-  
-  const RecruitClasses = ({classesList}) => {
-    return classesList.map((c, index) => <p>({index + 1}) - {(c.length !== 0) ? c[0].label : "EMPTY SLOT" }</p>)
+  return {... r,
+    class: [
+      [classes[randomListIndex(classes)]],
+      [],
+      [],
+    ],
+    canCarry: Math.floor(r.stats.curr_strength / 2)
   }
   
-  return (<>
+  }))
+
+
+  const [expeditions, setExpeditions] = useState([
+    /*example {
+    id:0,
+    participants:[1,2],
+    details: "",
+    canCarry: 50 (asegurador) + 20(normal) + 20(normal),
+    currCarry: []
+    bonus: [
+      {type: "materials", bonus:0.3, label: "30% more materials per location"} (stackable)
+    ],
+    progress: 0,
+    duration: 7( in days ) in turns 24*7
+    
+    
+    }*/
+  ])
   
-    {testRecruits.map(tr => <div> <span>{tr.name}</span> <RecruitClasses classesList={tr.class} /></div>)}
   
-  
-    <h4>Exploration Form</h4>
-    <Form
-      Col={{
-        span: 12,
-      }}
-      wrapperCol={{
-        span: 20,
-      }}
-      layout="vertical"
-    >
+  const [locations, setLocations] = useState([
+    /*example
       
-      <Form.Item label="Participants">
-        <Select
-          mode="multiple"
-          style={{
-            width: '100%',
-          }}
-          placeholder="Please select"
-          onChange={(value) => {
-            console.log(value)
-            /*Before adding the participants we will add
-                the mission/training to the user*/
-            setRecruits((prev) => {
-                return prev.map((r) => {
-                    const newRecruit = {... r}
-                    
-                    const stringifyActions = newRecruit.curr_actions.map(el => {
-                      return JSON.stringify(el)
-                    })
-                    
-                    /*If its in values, dont remove the mission from it*/
-                    if (value.includes(newRecruit.id)){
-                        /*If the mission was already added, dont add it again*/
-                        if (stringifyActions.includes(JSON.stringify([mission, timeOperations])) == false){                    
-                            newRecruit.curr_actions = [... r.curr_actions, [mission, timeOperations]]
-                        }
-                    } else {
-                        /*If the id is in the mission, we supposed that the mission was already added so we remove it*/
-                        newRecruit.curr_actions = r.curr_actions.filter(action => JSON.stringify(action) !== JSON.stringify([mission, timeOperations]))
-                    }
-                    console.log(newRecruit)
-                    return newRecruit
-                
-                })
-            })
- 
-            setMisssions((prev) => {
-         
-              prev.map((training) => {
-                /*Comparing the missions selected with all the missions
-                so that we can then add the participants to it*/
-                if (training.id == mission.id) {
-                  console.log("hello",training)
-                  training.participants = [... value]
-                  return training
-                } else {
-                  return training
-                }
-              })
-              
-              
-              
-              console.log("prev", prev)
-              return prev
-            })
-          }}
-          options={recruits.map((r) => {
-            return {
-              label: r.name,
-              value: r.id,
-            }
+      this will be found by the amount of the places (10) times (*) 2
+      { id:0,
+        expeditionId: id of expedition,
+        locations:[
+        {
+          direction: random direction from the 3 directions
+          resources: [
+            {type:"material", name:"stick", weight: 10, amount:10}
+          ],
           
-          })}
+        },
+        {
+          direction: random direction from the 3 directions
+          resources: [
+            {type:"material", name:"stick", weight: 10, amount:10}
+          ],
+          
+        },
+        ]
+      }
+    */
+  ])
+  
+  const [visited, setVisited] = useState([
+    /*
+    example: only put it here if we weren't able to retrive all the resources of the place
+    {
+      distance: if in one of the days we found one of the locations, the day will be saved here
+      
+      aside from that it will be a copy of the location
+      
+    
+    }
+    
+    */
+  ])
+  
+  const [inExpedition, setInExpedition] = useState([])
+  
+  
+  
+  const goOnExpedition = () => {
+    
+    if (expeditions.length == 0) return 
+    
+    const newExpeditions = expeditions.map(exp => {
+      
+      exp.carrying()
+      
+    })
+    
+  }
+  
+  
+  
+  
+
+
+  return (<>
+    <Button onClick={goOnExpedition}>Go On Expedition</Button>
+    <div>
+      <Space>
+        <ExplorationForm 
+        operations={[missions, setMissions, testRecruits, setTestRecruits, timeOperations]}
+        expeditions={expeditions}
+        setExpeditions={setExpeditions}
+        inExpedition={inExpedition}
+        setInExpedition={setInExpedition}
+        locations={locations}
+        setLocations={setLocations}
+        />
+      </Space>
+      <Space>
+      
+        <List
+          header={<div>Information</div>}
+          bordered
+          dataSource={expeditions}
+          renderItem={(item, index) => (
+            <List.Item key={index}>
+              <Typography.Text>
+              <p>id:{item.id}</p>
+              <p>Duration:<br/>
+              The expedition will lasts {Math.floor(item.duration/24)} days,
+              direction {item.direction}<br/>
+              your team has been out for {item.progress} days.</p>
+              
+              <p>They can carry {item.canCarry}lbs of resources back to base.</p>
+              
+              <p>The partipants are:</p>
+              {item.participants.map(id => (
+                <>{testRecruits.map(tr => {
+                    if (tr.id === id){
+                      return tr.name
+                    }
+                })}, </>
+              ))}
+              
+              
+              </Typography.Text>
+            </List.Item>
+          )}
         />
       
-      </Form.Item>
-      
-      
-      
-      
-      <Form.Item label="Participants">
-        <Select options={[
-        
-        {id:"north", value:"North"},
-        {id:"south", value:"South"},
-        {id:"east", value:"East"},
-        ]}/>
-      </Form.Item>
-      
-      <Form.Item label="Direction">
-        <Select options={[
-        {id:"north", value:"North"},
-        {id:"south", value:"South"},
-        {id:"east", value:"East"},
-        ]}/>
-      </Form.Item>
-      
-      <Form.Item label="DaysLong">
-        <InputNumber />
-      </Form.Item>
-      <Form.Item label={null}>
-        <Button>Depart</Button>
-      </Form.Item>
-    </Form>
-  </>);
+      </Space>
+    </div>
+  
+  </>)
+  
 }
