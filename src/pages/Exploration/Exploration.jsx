@@ -203,8 +203,39 @@ export const Exploration = ({operations}) => {
     if (expeditions.length == 0) return 
     
     const newExpeditions = expeditions.map(exp => {
-      
-      exp.carrying()
+        const linkedLocations = locations.filter(l => l.expeditionId === exp.id)[0].locations
+        const locationsAmount = linkedLocations.length
+        const foundedIndex = Math.floor(Math.random()*locationsAmount*2)
+        console.log(foundedIndex, locationsAmount)
+        const founded = foundedIndex < locationsAmount
+        
+        if (founded) {
+            const foundedLocation = linkedLocations[foundedIndex]
+            const resources
+            const cantCarryAll = foundedLocation.resourcesTotalWeight > exp.canCarry
+            
+            /*move the resources to exp.currCarry before putting them
+            in visited, after that, they have to come back with the resources 
+            
+            so they need an indicator of when they coming back
+            
+            */
+            
+            
+            
+            if (cantCarryAll){
+                setVisited([ ... visited, 
+                    {
+                        ... prev,
+                        
+                    
+                    }    
+                    
+                ])
+            }
+            
+        }   
+     
       
     })
     

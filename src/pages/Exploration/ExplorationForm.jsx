@@ -99,9 +99,17 @@ export const ExplorationForm = ({operations, expeditions, setExpeditions, locati
             canCarry: calculateWeight(participants),
             currCarry: [],
             get carrying() {
-              const currCarry = this currCarry
+              const currCarry = this.currCarry
               if (currCarry.length == 0) return 0
               
+              let total = 0
+              
+              currCarry.forEach(m => {
+                const weight = m.weight
+                total += weight
+              })
+              
+              return total            
               
             },
             bonus: clssBonuses(participants),
@@ -131,7 +139,21 @@ export const ExplorationForm = ({operations, expeditions, setExpeditions, locati
             emptyList.push(
               {
                 direction: directions,
-                resources: createMaterialsSet()
+                resources: createMaterialsSet(),
+                get resourcesTotalWeight() {
+                  const currCarry = this.createMaterialsSet
+                  if (currCarry.length == 0) return 0
+                  
+                  let total = 0
+                  
+                  currCarry.forEach(m => {
+                    const weight = m.weight
+                    total += weight
+                  })
+                  
+                  return total            
+                  
+                },
                 
               },
             )
