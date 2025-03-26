@@ -16,8 +16,10 @@ import {
 
 
 const materials = [
-  { type: "material", name: "stick", weight: 10, amount: 10 },
-  { type: "material", name: "rock", weight: 15, amount: 8 },
+  { type: "material", name: "wood", weight: 5, amount: 10 },
+  { type: "material", name: "food", weight: 10, amount: 10 },
+  { type: "material", name: "people", weight: 0, amount: 1 },
+/*  { type: "material", name: "rock", weight: 15, amount: 8 },
   { type: "material", name: "metal scrap", weight: 20, amount: 5 },
   { type: "material", name: "plastic bottle", weight: 5, amount: 12 },
   { type: "material", name: "wire", weight: 8, amount: 7 },
@@ -40,7 +42,7 @@ const materials = [
   { type: "material", name: "aluminum can", weight: 2, amount: 15 },
   { type: "material", name: "brick", weight: 30, amount: 2 },
   { type: "material", name: "shattered mirror", weight: 6, amount: 8 },
-  { type: "material", name: "old tire", weight: 40, amount: 1 }
+  { type: "material", name: "old tire", weight: 40, amount: 1 }*/
 ];
 
 
@@ -114,7 +116,7 @@ export const ExplorationForm = ({operations, expeditions, setExpeditions, locati
             },
             bonus: clssBonuses(participants),
             progress: 0,
-            duration: 24*daysLong,
+            duration: daysLong,
                
         }
       
@@ -141,7 +143,7 @@ export const ExplorationForm = ({operations, expeditions, setExpeditions, locati
                 direction: directions,
                 resources: createMaterialsSet(),
                 get resourcesTotalWeight() {
-                  const currCarry = this.createMaterialsSet
+                  const currCarry = this.resources
                   if (currCarry.length == 0) return 0
                   
                   let total = 0

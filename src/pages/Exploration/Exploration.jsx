@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { ExplorationForm } from "./ExplorationForm"
 import { TestForm } from "./TestForm"
-import { Space, Divider, List, Typography, Button } from "antd";
-
-
+import { Space, Divider, List, Typography, Button, Modal, Statistic, Card, Col, Row, } from "antd";
+import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons';
 
 const postApocalypticLocations = [
   "Abandoned Metro Station",
@@ -120,7 +119,7 @@ const randomListIndex = list => Math.floor(Math.random() * list.length)
 
 export const Exploration = ({operations}) => {
   
-  console.log(operations)
+//  console.log(operations)
 
   const [missions, setMissions, recruits, setRecruits, timeOperations] = operations.operations 
   const [testRecruits, setTestRecruits] = useState(recruits.map(r => {
@@ -194,7 +193,41 @@ export const Exploration = ({operations}) => {
     */
   ])
   
+  
+  
+  
   const [inExpedition, setInExpedition] = useState([])
+  
+  
+  const calcBagWeight = (bag) => {
+    let weight = 0
+    for ( const re of bag ){
+      weight += re.weight
+    }
+    return weight
+  }
+  
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalData, setModalData] = useState({})
+  
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   
@@ -205,14 +238,24 @@ export const Exploration = ({operations}) => {
     const newExpeditions = expeditions.map(exp => {
         const linkedLocations = locations.filter(l => l.expeditionId === exp.id)[0].locations
         const locationsAmount = linkedLocations.length
-        const foundedIndex = Math.floor(Math.random()*locationsAmount*2)
+        const foundedIndex = Math.floor(Math.random()*(locationsAmount*2))
         console.log(foundedIndex, locationsAmount)
         const founded = foundedIndex < locationsAmount
         
+        
+        if ( exp.duration <= exp.progress ) exp.comingBack = true
+        
+        if (exp?.comingBack){
+            setModalData(exp)
+            showModal()
+            
+            return {... exp, DELETE:true}
+        }       
+        
         if (founded) {
             const foundedLocation = linkedLocations[foundedIndex]
-            const resources
-            const cantCarryAll = foundedLocation.resourcesTotalWeight > exp.canCarry
+            const resources = foundedLocation.resources
+            const cantCarryAll = foundedLocation.resourcesTotalWeight > (exp.canCarry - calcBagWeight(exp.currCarry))
             
             /*move the resources to exp.currCarry before putting them
             in visited, after that, they have to come back with the resources 
@@ -220,27 +263,100 @@ export const Exploration = ({operations}) => {
             so they need an indicator of when they coming back
             
             */
+             const moveResources = (expWeightLimit, resources) => {
+//              console.log(expWeightLimit, resources)
             
             
-            
-            if (cantCarryAll){
-                setVisited([ ... visited, 
-                    {
-                        ... prev,
-                        
-                    
-                    }    
-                    
-                ])
+              const bag = []
+              let bagsWeight = 0
+              const newResources = [ ... resources]
+              for ( const re of resources ){
+                const calc = bagsWeight + re.weight
+                if (calc > expWeightLimit){
+                  continue
+                }
+                bagsWeight = calc
+                bag.push({ ... re})
+                newResources.map( nre => {
+                  if (JSON.stringify(nre) !== JSON.stringify(re)) return nre
+                })
+                
+              }
+              
+              return [bag, newResources]
             }
             
-        }   
+            const [recoveredResources, oldResources] = moveResources(exp.canCarry, resources)
+             
+            
+            if (cantCarryAll){
+                setVisited([ ... visited, { ... foundedLocation, distance: exp.progress + 1, }])        
+                return { 
+                  ... exp,
+                  progress: exp.progress + 1, 
+                  currCarry:[ ... recoveredResources],
+                  comingBack: true,
+                  }
+            } else {
+//              erase location with no resources
+              setLocations(locations.filter(l => {
+                if (l.expeditionId === exp.id){
+                  return {
+                    ... l,
+                    locations: [ ... l.locations.slice(1, foundedIndex)]
+                  
+                  }
+                
+                }
+                return l                
+                }))
+              
+            }
+            
+//            if progress has reach the days of completion then set comeback from expedition to true 
+            
+            
+            return { ... exp, progress: exp.progress + 1}
+//            if you didn't find anything then sum 24(a whole day) to progress
+        } else {
+            return { ... exp, progress: exp.progress + 1}
+        
+        }
      
       
     })
     
+    
+    
+    setExpeditions([ ... newExpeditions.filter(el => (el?.DELETE == true) ? false : true)])
+    
   }
   
+  
+  const ShowExpeditionResults = () => {
+    if (!modalData.currCarry) return <></>
+    
+    if (modalData.currCarry.length === 0) return <h3>Recruits Found Nothing usefull</h3>
+    
+    const rewards = modalData.currCarry.map( el => {
+        return <Col span={12}>
+          <Card variant="borderless">
+            <Statistic
+              title={el.name}
+              value={el.amount}
+              precision={2}
+              valueStyle={{ color: '#3f8600' }}
+              prefix={<ArrowUpOutlined />}
+              suffix="+"
+            />
+          </Card>
+        </Col>})
+        
+    
+        
+    return <Row gutter={16}>{rewards}</Row>
+  
+  }
   
   
   
@@ -271,13 +387,13 @@ export const Exploration = ({operations}) => {
               <Typography.Text>
               <p>id:{item.id}</p>
               <p>Duration:<br/>
-              The expedition will lasts {Math.floor(item.duration/24)} days,
+              The expedition will lasts {item.duration} days,
               direction {item.direction}<br/>
               your team has been out for {item.progress} days.</p>
               
               <p>They can carry {item.canCarry}lbs of resources back to base.</p>
               
-              <p>The partipants are:</p>
+              <p>The partipants are:<br/>
               {item.participants.map(id => (
                 <>{testRecruits.map(tr => {
                     if (tr.id === id){
@@ -285,15 +401,51 @@ export const Exploration = ({operations}) => {
                     }
                 })}, </>
               ))}
+              </p>
               
               
+              
+              <p>
+               currently carrying {calcBagWeight(item.currCarry)}lbs of resources:<br/>
+              
+              
+              {/*type:"material", name:"stick", weight: 10, amount:10*/}
+              
+              {/*(item.currCarry.length != 0) ? item.currCarry.map((re) => (
+                <>
+                {re.name} - weight: {re.weight} - amount: {re.amount} <br/>
+                </>
+              )) : <>Not carrying anything</>*/}
+              </p>
               </Typography.Text>
+              
             </List.Item>
           )}
         />
       
       </Space>
     </div>
+    
+    <Modal title="Results of Expedition" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+      
+      
+      
+        <ShowExpeditionResults />
+        {/*<Col span={12}>
+          <Card variant="borderless">
+            <Statistic
+              title="Idle"
+              value={9.3}
+              precision={2}
+              valueStyle={{ color: '#cf1322' }}
+              prefix={<ArrowDownOutlined />}
+              suffix="%"
+            />
+          </Card>
+        </Col>*/}
+      
+      
+    </Modal>
   
   </>)
   
