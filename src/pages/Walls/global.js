@@ -4,12 +4,12 @@ export const damageTaken = (team, value, setRecruits) => {
     return calc <= 0 ? 0 : calc;
   };
   
-  const healthPercentage = newHealth() / team.maxHealth;
+//  const healthPercentage = newHealth() / team.maxHealth;
   
   setRecruits(prevRecruits => prevRecruits.map(el => {
     if (!team.recruitIds.includes(el.id)) return el;
     
-    const damage = Math.ceil(el.maxHealth * (healthPercentage / team.recruitIds.length));
+    const damage = value
     
     console.log("damage: ", damage)
 

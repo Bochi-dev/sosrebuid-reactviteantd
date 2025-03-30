@@ -57,8 +57,10 @@ export const TeamsForm = ({teams, setTeams, recruits, setRecruits}) => {
         return inTeam
     }
     
+    const options = recruits.map(el => ({ desc:el.level, 
+      hp:el.health, maxhp:el.maxHealth, label: el.name, value: el.id, disabled: (inTeams().includes(el.id) ? true : false)}))
     
-        
+    console.log(options) 
     
     return (
         <Form
@@ -82,9 +84,18 @@ export const TeamsForm = ({teams, setTeams, recruits, setRecruits}) => {
               style={{ width: '100%' }}
               placeholder="Please select"
               maxCount={3}
-              options={recruits.map(el => ({label: el.name, value: el.id, disabled: (inTeams().includes(el.id) ? true : false)}))}
+              options={options}
               onChange={onChange}
               defaultValue={selectedValue}
+              optionRender={option => {
+                console.log("option: ", option)
+                return (
+                    <Space>
+                      lvl: {option.data.desc}
+                      {option.label}
+                      hp: {option.data.hp}
+                    </Space>
+                )}}
               
             />
             

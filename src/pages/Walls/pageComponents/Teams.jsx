@@ -5,6 +5,13 @@ import { TeamsCard } from "./TeamsCard"
 
 
 export const Teams = ({teams, setTeams, recruits, setRecruits}) => {
+
+    const deleteTeam = (team) => {
+        setTeams( prev => {
+            return prev.filter(el => el.id !== team.id)
+        })
+    }
+
     return (
         <>  
             
@@ -12,7 +19,7 @@ export const Teams = ({teams, setTeams, recruits, setRecruits}) => {
                 <TeamsForm teams={teams} setTeams={setTeams} recruits={recruits} setRecruits={setRecruits}/>
             </div>
             <Flex wrap gap="small">
-                {teams.map( el => <TeamsCard team={el} recruits={recruits}/>)}
+                {teams.map( el => <TeamsCard team={el} deleteTeam={deleteTeam} recruits={recruits}/>)}
             </Flex>
         </>
     

@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Teams, WallsCard } from "./pageComponents"
 import { damageTaken } from "./global"
-import { Button, Col, Row, Space, Flex } from "antd"
+import { Button, Col, Row, Space, Flex, Modal } from "antd"
 const wallNames = ["North Wall", "South Wall", "East Wall"]
 
 
@@ -79,17 +79,35 @@ export const Walls = ({operations}) => {
     
     
     
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalMessage, setModalMessage] = useState(<></>)
+    const showModal = () => {
+      setIsModalOpen(true);
+    };
+    const handleOk = () => {
+      setIsModalOpen(false);
+    };
+    const handleCancel = () => {
+      setIsModalOpen(false);
+    };
+    
     const nextTurn = () => {
       
       setWalls((prev) => {
         return prev.map(el => {
+        
+          if (el.health <= 0 && (el.messageSent === undefined || el.messageSent === false)){
+            setModalMessage(<h2>{el.name} has been destroyed, the bandints have taken some of your stuff, repair as fast as possible!</h2>)
+            showModal()
+            return { ... el, messageSent: true, attacked: false, attacker: null }
+          }
           
           const isAttackedState = (wall) => {
               if (wall?.attacked === true) return {}
               
               const attacked =  Math.floor(Math.random()*2) === 1 ? true : false // if it's 1 then it's being attacked
               const attacker = attacked ? {
-                powerLevel: Math.floor(Math.random()*28) ,/*a random level between wall's defense + 2 and wall's defense -2   
+                powerLevel: Math.floor(Math.random()*10) ,/*a random level between wall's defense + 2 and wall's defense -2   
                 obviously without surpassing the 27 max level cap*/
                 health: 10,
                 maxHealth: 10,
@@ -117,35 +135,40 @@ export const Walls = ({operations}) => {
             const team = getTeam(wall.stationedTeam)
             
             
-            if (attacker.health <= 0){
+//            checking if the attacker is still alive
+            if (attacker?.health <= 0 || attacker === null){
               changes = {... changes, attacked: false}
             }
             
+//            if there is not team, protecting the wall, the wall will take damage directly
             if (team === undefined && (attacker !== null || attacker !== undefined)) {
               changes = {
                 ... changes,
+//                if the attacker is stronger than the wall
                 health: ( wall.defenseLevel <= attacker.powerLevel ) ? Math.max(0, wall.health - 1) : wall.health,
+//                because the item is undefined, we are gonna set the stationedTeam to null
+                stationedTeam: null,
               }
-            } 
-            
-            if (attacker.powerLevel < team.powerLevel){
-              changes = {
-                ... changes,
-                attacker: (attacker.health > 0) ? {
-                  ... attacker,
-                  health: Math.max(0, attacker.health - 1)
-                } : null,
-              }
-            } else {
-              if (team.health <= 0) {
-                changes = { 
-                  ... changes, 
-                  health: ( wall.defenseLevel <= attacker.powerLevel ) ? Math.max(0, wall.health - 1) : wall.health,
-                } 
+//              if team is defined and its not weaker than the attacker
+            } else if (attacker.powerLevel < team.powerLevel){
+                changes = {
+                  ... changes,
+                  attacker: (attacker.health > 0) ? {
+                    ... attacker,
+                    health: Math.max(0, attacker.health - 1)
+                  } : null,
+                }
+//              if the enemy stronger
               } else {
-                damageTaken(team, 1, setTestRecruits)
+                if (team.health <= 0) {
+                  changes = { 
+                    ... changes, 
+                    health: ( wall.defenseLevel <= attacker.powerLevel ) ? Math.max(0, wall.health - 1) : wall.health,
+                  } 
+                } else {
+                  damageTaken(team, 1, setTestRecruits)
+                }
               }
-            }
             
             return changes
           }
@@ -209,6 +232,10 @@ export const Walls = ({operations}) => {
           
       
       </Row>
+      
+      <Modal title="Warning" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+        {modalMessage}
+      </Modal>
     
     </>)
     
