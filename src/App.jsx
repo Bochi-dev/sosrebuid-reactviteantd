@@ -8,7 +8,9 @@ SignalFilled,
 OrderedListOutlined,
 BuildOutlined,
 RadarChartOutlined,
-CompassOutlined} from "@ant-design/icons"
+CompassOutlined,
+TableOutlined,
+AppstoreAddOutlined,} from "@ant-design/icons"
 import { useState } from 'react'
 import { IconText } from "./components"
 import { changeStatByTurn, manageFatigue, checkReqs, looseGainWeight, schedule1, schedule2} from "./global"
@@ -23,7 +25,8 @@ Stress,
 CreateSchedule,
 Buildings, 
 Classes,
-Exploration} from "./pages"
+Exploration,
+Walls} from "./pages"
 const daysOfWeek = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
 
 
@@ -358,8 +361,9 @@ function SideMenu() {
             {label: "Missions", key:"/Missions", icon: <ProductFilled/>},
             {label: "Training", key:"/Training", icon: <ThunderboltFilled/>},
             {label: "Create Schedule", key:"/Create_Schedule", icon: <OrderedListOutlined />},
-            {label: "Classes", key:"/Classes", icon: <RadarChartOutlined />},
+            {label: "Classes and Teams", key:"/Classes", icon: <RadarChartOutlined />},
             {label: "Exploration", key:"/Exploration", icon: <CompassOutlined />},
+            {label: "Walls", key:"/Walls", icon: <AppstoreAddOutlined />},
             
             {label: "Buildings (WIP)", key:"/Buildings", icon: <BuildOutlined />, disabled:true},
 //            {label: "Food", key:"/Food", icon: <ThunderboltFilled/>},
@@ -447,6 +451,11 @@ function Content(operations) {
             <Route 
                 path="/Classes" 
                 element={<Classes operations={operations}/>}
+            />
+            
+            <Route 
+                path="/Walls" 
+                element={<Walls operations={operations}/>}
             />
             
             <Route 
