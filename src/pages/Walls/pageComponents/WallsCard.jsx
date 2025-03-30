@@ -36,17 +36,13 @@ export const WallsCard = ({wall, setWalls, inWalls, teams, setRecruits}) => {
     }
     
     const onChange = (value) => {
-        
         setWalls(prev => {
             return prev.map(el => {
                 if (el.id !== wall.id) return el
                 return {
                     ... el,
                     stationedTeam: value,
-                
                 }
-                
-                
             })
         })
             

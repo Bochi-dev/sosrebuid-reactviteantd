@@ -100,8 +100,10 @@ export const Walls = ({operations}) => {
             }
           
           const responseToAttackedState = (wall) => {
+//            first we have the changes
             let changes = {}
             
+//            checking if the wall is being attacked
             if (
                 
                 wall?.attacked === false || wall.attacked === undefined ||
@@ -109,34 +111,43 @@ export const Walls = ({operations}) => {
                 
               ) return {}
             
+            
+//            setting the team and attacker as consts
             const attacker = wall.attacker
             const team = getTeam(wall.stationedTeam)
+            
             
             if (attacker.health <= 0){
               changes = {... changes, attacked: false}
             }
             
-            if (team === undefined) {
+            if (team === undefined && (attacker !== null || attacker !== undefined)) {
               changes = {
                 ... changes,
                 health: ( wall.defenseLevel <= attacker.powerLevel ) ? Math.max(0, wall.health - 1) : wall.health,
-                ... isAttackerDead(attacker),
+              }
+            } 
+            
+            if (attacker.powerLevel < team.powerLevel){
+              changes = {
+                ... changes,
+                attacker: (attacker.health > 0) ? {
+                  ... attacker,
+                  health: Math.max(0, attacker.health - 1)
+                } : null,
               }
             } else {
-              changes = {
-              ... changes,
-              attacker: (attacker.health > 0) ? {
-                ... attacker,
-                health: ( attacker.powerLevel < team.powerLevel) ? Math.max(0, attacker.health - 1) : attacker.health,
-              } : null,
-              ... isAttackerDead(attacker),
-              
-            
-             }
-            
+              if (team.health <= 0) {
+                changes = { 
+                  ... changes, 
+                  health: ( wall.defenseLevel <= attacker.powerLevel ) ? Math.max(0, wall.health - 1) : wall.health,
+                } 
+              } else {
+                damageTaken(team, 1, setTestRecruits)
+              }
             }
             
-        
+            return changes
           }
             
             
