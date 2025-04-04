@@ -243,7 +243,7 @@ export const ExplorationForm = ({operations, expeditions, setExpeditions, locati
   
   return (<>
   
-    {recruits.map(tr => <div> <span>{tr.name}</span> <RecruitClasses classesList={tr.class} /></div>)}
+    {recruits.map((tr, index) => <div key={index}> <span>{tr.name}</span> <RecruitClasses classesList={tr.class} /></div>)}
   
   
     <h4>Exploration Form</h4>
@@ -327,8 +327,8 @@ export const ExplorationForm = ({operations, expeditions, setExpeditions, locati
           header={<div>Details</div>}
           bordered
           dataSource={data}
-          renderItem={(item) => (
-            <List.Item>
+          renderItem={(item, index) => (
+            <List.Item key={index}>
               <Typography.Text mark>[ITEM]</Typography.Text> {item}
             </List.Item>
           )}

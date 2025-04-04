@@ -32,7 +32,7 @@ export function MissionCard ({missions, setMisssions, operations, timeOperations
           missions.map((mission) => {
             return <Card key={mission.id} title={mission.name} variant="borderless" style={{ width: 300 }}>
             
-            <p>progress {mission.progress}/{mission.turns}</p>
+            <strong>Progress</strong>: <Progress percent={Math.floor((mission.progress/mission.turns)*100)}/> 
             
             
             <p>
@@ -117,7 +117,7 @@ export function MissionCard ({missions, setMisssions, operations, timeOperations
             
             
             <p>Sub Tasks</p>
-            {mission.subs.map((id, index) => {
+            {/*mission.subs.map((id, index) => {
               return missions.map((mission) => {
                 if (mission.id == id) {
                   return <p key={index}>{mission.name}</p>
@@ -126,7 +126,7 @@ export function MissionCard ({missions, setMisssions, operations, timeOperations
                 }
               
               })
-            })}
+            })*/}
           </Card>
           
           })

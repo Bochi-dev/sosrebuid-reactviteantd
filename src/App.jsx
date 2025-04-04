@@ -13,7 +13,7 @@ TableOutlined,
 AppstoreAddOutlined,} from "@ant-design/icons"
 import { useState } from 'react'
 import { IconText } from "./components"
-import { changeStatByTurn, manageFatigue, checkReqs, looseGainWeight, schedule1, schedule2} from "./global"
+import { changeStatByTurn, manageFatigue, checkReqs, looseGainWeight, schedule1, schedule2, RECRUITS} from "./global"
 import { Route, Routes, useNavigate, useLocation } from "react-router-dom"
 import { Main,
 Missions,
@@ -35,76 +35,7 @@ function App() {
 
   const [dayindex, setDayindex] = useState(0)
   const [routines, setRoutines] = useState()
-  const [recruits, setRecruits] = useState([
-    {id:1,
-    name:"Garcia",
-    curr_actions: [],
-    stats: {
-      curr_strength: 15,
-      curr_inteligence: 15,
-      curr_spirit: 20,
-      /*Weight*/
-      weight: 68,
-      height: 1.7,
-      calories: 7700,
-      bmi: "normal",
-      /*Fatigue*/
-      fatigue: 0.00,
-      fatigue_display:0,
-      /*Energy and Happiness*/
-      curr_happiness: 100,
-      
-      min_stat_value: 1,
-      max_stat_value: 100,
-      }
-    },
-    {id:2,
-    name:"Mendoza",
-    curr_actions: [],
-    stats: {
-      curr_strength: 15,
-      curr_inteligence: 20,
-      curr_spirit: 15,
-      
-      /*Weight*/
-      weight: 68,
-      height: 1.7,
-      calories: 7700,
-      bmi: "normal",
-      /*Fatigue*/
-      fatigue: 0.00,
-      fatigue_display:0,
-      /*Energy and Happiness*/
-      curr_happiness: 100,
-      
-      min_stat_value: 1,
-      max_stat_value: 100,
-    }
-    },
-    {id:3,
-    name:"Juanita",
-    curr_actions: [],
-    stats: {
-      curr_strength: 20,
-      curr_inteligence: 15,
-      curr_spirit: 15,
-      
-      /*Weight*/
-      weight: 68,
-      height: 1.7,
-      calories: 7700,
-      bmi: "normal",
-      /*Fatigue*/
-      fatigue: 0.00,
-      fatigue_display:0,
-      /*Happiness*/
-      curr_happiness: 100,
-      
-      min_stat_value: 1,
-      max_stat_value: 100,
-    }
-    }
-  ])
+  const [recruits, setRecruits] = useState(RECRUITS)
   
   
   const [trainings, setTrainings] = useState([
