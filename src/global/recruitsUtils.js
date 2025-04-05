@@ -24,6 +24,7 @@ const generateRandomRecruits = amount => {
             id:i,
             name:NAMESLIST[Math.floor(Math.random()*NAMESLIST.length)],
             curr_actions: [],
+            schedule: null,
             stats: {
               curr_strength: generateRandomNumberInLength(20, 30),
               curr_inteligence: generateRandomNumberInLength(20, 30),
