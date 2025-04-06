@@ -5,17 +5,29 @@ import React from 'react';
 
 
 export function Main({operations}) {
-  const [trainings, setTrainings, recruits, setRecruits] = operations.operations
-
+  const [recruits, setRecruits] = operations.recruitsOperations
+  const [resources, setResources] = operations.resourcesOperations
+  
+//  MAKE A FUNCTION TO DISPLAY THE CHANGES IN THE RESOURCES AS TIME PASSES
+//  RED if its decreasing and GREEN if its increasing, for the food, make red IF its less the the number of recruits
+  const displayResourceCard = (resources) => {
+    let cards = []
+    Object.keys(resources).forEach((name) => {
+      cards.push(<GameCard title={name} amount={resources[name]}/>)
+    })
+    
+    return cards
+  }
+  
   return (
     <>
         <Space>
         
-          <GameCard title="People" amount="0"/>
-          <GameCard title="Food" amount="0"/>
+          <GameCard title="People" amount={recruits.length}/>
+          {displayResourceCard(resources)}
           <GameCard title="Happiness" amount="0%"/>
         </Space>
-        <Recruits recruits={recruits}/>
+        <Recruits operations={operations}/>
 
     </>
   )

@@ -13,7 +13,14 @@ TableOutlined,
 AppstoreAddOutlined,} from "@ant-design/icons"
 import { useState } from 'react'
 import { IconText } from "./components"
-import { changeStatByTurn, manageFatigue, checkReqs, looseGainWeight, schedule1, schedule2, RECRUITS} from "./global"
+import { changeStatByTurn, 
+manageFatigue, 
+checkReqs, 
+looseGainWeight, 
+schedule1, 
+schedule2, 
+RECRUITS,
+HOURS} from "./global"
 import { Route, Routes, useNavigate, useLocation } from "react-router-dom"
 import { Main,
 Missions,
@@ -30,9 +37,14 @@ Walls} from "./pages"
 const daysOfWeek = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
 
 
+
 //the main app, here is managed the different routes of the app
 function App() {
-
+  const [resources, setResources] = useState({
+    food: 20,
+    wood: 30,
+  })
+  const [disableSelect, setDisableSelect] = useState(false)
   const [dayindex, setDayindex] = useState(0)
   const [routines, setRoutines] = useState()
   const [recruits, setRecruits] = useState(RECRUITS)
@@ -97,10 +109,10 @@ function App() {
   }
   
   
-  const [turns, setTurns] = useState(1)
+  const [turns, setTurns] = useState(0)
   const [days, setDays] = useState(1)
   
-  const timeOperations = [daysOfWeek[dayindex], days, turns]
+  
   
   
   
@@ -208,7 +220,7 @@ function App() {
     return newPrev1
     })
     
-    const hoursAday = 24
+    const hoursAday = 23
     setTurns((prev) => {
         return prev += 1
       })
@@ -266,7 +278,14 @@ function App() {
             flex: 1,
         }}>
             <SideMenu/>
-            <Content operations={[x,setX,recruits,setRecruits,timeOperations, [schedule1, schedule2]]}/>
+            <Content operations={{
+                pageOperations: [x,setX],
+                recruitsOperations: [recruits,setRecruits],
+                timeOperations: [daysOfWeek[dayindex], days, turns], 
+                schedules: [schedule1, schedule2],
+                resourcesOperations: [resources, setResources],
+                operationsDisableStuff: [disableSelect, setDisableSelect]
+                }}/>
         </div>
     </>
   )
@@ -313,6 +332,8 @@ function SideMenu() {
 }
 
 function Header({days, dayName, turns, nextTurn}) {
+    const hour = HOURS[turns]
+
     return <div
         style={{
         height: 60,
@@ -322,7 +343,7 @@ function Header({days, dayName, turns, nextTurn}) {
         }}
     >
     <Space>
-      <IconText icon={SunOutlined} text={`${dayName}, Days: ${days} Turns: ${turns}`}/>
+      <IconText icon={SunOutlined} text={`${dayName}, Days: ${days} Turns: ${hour}`}/>
       
       <Button onClick={() => {
         nextTurn()
@@ -332,7 +353,7 @@ function Header({days, dayName, turns, nextTurn}) {
     </div>
 }
 
-function Content(operations) {
+function Content({operations}) {
     return <div style={{padding:15}}>
         <Routes>
             

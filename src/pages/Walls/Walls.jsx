@@ -28,7 +28,7 @@ const randomClasses = () => {
 }
 
 export const Walls = ({operations}) => {
-    const [trainings, setTrainings, recruits, setRecruits, timeOperations] = operations.operations
+    const [recruits,setRecruits] = operations.recruitsOperations
     
 /*    adding the health and maxHealth to recruits just to decide when the team will
     be defeated or healed later*/

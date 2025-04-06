@@ -1,20 +1,18 @@
 import { useState } from "react"
 import { Button, Select, Card, Avatar, List, Modal } from "antd"
 import { Space, Table, Tag } from 'antd';
-import { Recruits } from "../../components"
-import { changeStatByTurn, 
-manageFatigue, 
-checkReqs, 
-looseGainWeight, 
-schedule1, 
-schedule2, 
-daysOfWeek, 
-HOURS} from "../../global"
+const hours = [
+  "12:00 AM", "1:00 AM", "2:00 AM", "3:00 AM", "4:00 AM", "5:00 AM", "6:00 AM", "7:00 AM",
+  "8:00 AM", "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM",
+  "4:00 PM", "5:00 PM", "6:00 PM", "7:00 PM", "8:00 PM", "9:00 PM", "10:00 PM", "11:00 PM"
+];
+import { Recruits } from "./Recruits"
+import { changeStatByTurn, manageFatigue, checkReqs, looseGainWeight, schedule1, schedule2, daysOfWeek} from "../../global"
 import { MissionCard } from "./MissionCard"
 
 
 
-const hoursArray = HOURS.map(time => ({
+const hoursArray = hours.map(time => ({
   hour: time,
   action: null
 }));
@@ -36,7 +34,18 @@ const dataSource = [
   },
 ];
 
-
+const columns = [
+  {
+    title: 'Hour',
+    dataIndex: 'hour',
+    key: 'hour',
+  },
+  {
+    title: 'Action',
+    dataIndex: 'action',
+    key: 'action',
+  },
+];
 
 
 
@@ -50,16 +59,43 @@ let days = 0
 export const CreateSchedule = ({operations}) => {
     const [disableSelect, setDisableSelect] = useState(false)
     const [dayindex, setDayindex] = useState(0)
-//    const [turns, setTurns] = useState(0)
+    const [turns, setTurns] = useState(0)
     const [days, setDays] = useState(1)
     const testtimeOperations = [daysOfWeek[dayindex], days, turns]
 
-    const [recruits, setRecruits] = operations.recruitsOperations
-    const schedules = operations.schedules
+    const [missions, setMissions, recruits, setRecruits, timeOperations, schedules] = operations.operations
+    
+    const [testRecruits, setTestRecruits] = useState(recruits.map((prev) => {
+        const newPrev = {... prev}
+        newPrev["schedule"] = null
+        
+        /*chaging the curr actions array to null, so that we can, in the mission card, assign them a mission to do
+        for the day, only one!*/
+//        newPrev.curr_actions = null
+        return newPrev
+    }))
+ 
     const [schedule1, schedule2] = schedules
     const [schedule, setSchedule] = useState(schedule1)
     
-    
+    const [display, setDisplay] = useState(hoursArray.map((prev) => {
+        const newPrev = { ... prev }       
+        const actions = [ ... schedule.actions ]
+        
+        
+        const action = actions.filter((el) => {
+            const turn = el.turn
+            const hour = hours[turn]
+            const hourPrev = newPrev.hour
+            if (hour == hourPrev){
+                return el
+            }
+        })[0]
+   
+        newPrev.action = action?.name
+        
+        return newPrev
+    }))
     
     
     
@@ -155,7 +191,7 @@ export const CreateSchedule = ({operations}) => {
     console.log("-------------------------------------------")
     
     
-    setRecruits((prev1) => {
+    setTestRecruits((prev1) => {
         /*Iterate through the recruits*/
         const newPrev1 = prev1.map((recruit) => {
           
@@ -293,19 +329,57 @@ export const CreateSchedule = ({operations}) => {
       
     }}>Next Turn</Button>
     
-    {/*<Recruits operations={operations}/>*/}
+    <Recruits recruits={testRecruits} setRecruits={setTestRecruits} schedules={schedules} turns={turns} disableSelect={disableSelect}/>
     
     <MissionCard
       
       missions={work}
       setMisssions={setWork}
-      operations={[recruits, setRecruits]}
+      operations={[testRecruits, setTestRecruits]}
       timeOperations={testtimeOperations}
       disableSelect={disableSelect}
       
     />
     
     <Button>create new one</Button><Select placeholder={"Select one to Edit"}/>
+    
+    <div>
+        
+        <Card>
+            <h3>{schedule.title}</h3>
+            
+            
+            
+            <Table dataSource={display} columns={columns} />
+            
+            
+            
+            
+            {/*------------------------------------------*/}
+            {/*<List
+                itemLayout="horizontal"
+                dataSource={schedule.actions}
+                renderItem={(item, index) => (
+                  <List.Item>
+                    <p>{hours[item.turn]} {item.name}</p>                  
+                  </List.Item>
+                )}
+              />antd
+            
+            
+            <List
+                itemLayout="horizontal"
+                dataSource={schedule.actions}
+                renderItem={(item, index) => (
+                  <List.Item>
+                    <p>{hours[item.turn]} {item.name}</p>                  
+                  </List.Item>
+                )}
+              />*/}
+            
+        </Card>
+        
+    </div>
     
     <Modal open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
       <h1>Do you wanna finish the day?</h1>
