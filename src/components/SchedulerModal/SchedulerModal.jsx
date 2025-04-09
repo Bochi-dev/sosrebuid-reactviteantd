@@ -4,7 +4,7 @@ Avatar,
 Button, 
 Modal, 
 Progress, 
-Select, Table } from "antd"
+Select, Table, Flex } from "antd"
 import { daysOfWeek, HOURS } from "../../global"
 import { red, green } from '@ant-design/colors';
 import { CheckOutlined, CloseOutlined, } from "@ant-design/icons"
@@ -15,7 +15,7 @@ const hoursArray = HOURS.map(time => ({
   action: null
 }));
 
-const requirements = (reqs, stats) => {
+const Requirements = ({reqs, stats}) => {
   if (reqs.length == 0){
     return <div>N/A</div>
   }
@@ -39,50 +39,30 @@ const requirements = (reqs, stats) => {
 }
 
 
-const ScheduleOld = ({modalData}) => {       
-  return daysOfWeek.map((day) => {
-    const [assigments, stats] = modalData
-    const dayData = assigments.filter((el) => {
-      if (el[1][0] == day){
-        return el
-      }          
-    })                   
-    const renderItem = (item, index) => {
-      const [mission, timeops] = item     
-      return <List.Item key={index}>
-        <List.Item.Meta
-          title={<a href="https://ant.design">{item[0].name}</a>}
-          description={`
-          ${timeops[0]} |
-          day: ${timeops[1]} |
-          hour: ${timeops[2]} |
-          `}
-        />
-        <Space>
-          <Space direction={"vertical"}>
+const DisplayWork = ({currActions, stats}) => {       
+    if (currActions === null) return <h3>I dont have a anything to do 🤷</h3>
+    
+    const mission = currActions.mission
+    return (
+      <Space direction={"vertical"}>
+        <h2>Work/Activity: {mission.name}</h2>
+        <Flex gap={16}>
+          <div>
             <p>
               <strong>Requirements</strong>
             </p>
-            {requirements(mission.reqs, stats)}
-          </Space>
-          <Progress type="circle" percent={(mission.progress/mission.turns)*100} />            
-        </Space>
-                                                 
-      </List.Item>                   
-    }
-                           
-    return (<>
-    <h2>{day}</h2>
-    <List
-    itemLayout="vertical"
-    dataSource={dayData}
-    renderItem={(item, index) => (
-      renderItem(item, index)
-    )}
-    />
-    </>)
-
-  })
+            <Requirements reqs={mission.reqs} stats={stats} />
+          </div>
+          <div>
+            <Progress 
+              type="circle" 
+              percent={(mission.progress/mission.turns)*100}
+              format={percent => `${mission.progress}/${mission.turns} Hours`}
+               />   
+          </div>
+        </Flex>         
+      </Space>
+    )
 }
 
 
@@ -139,10 +119,17 @@ export function SchedulerModal({title, open, onOk, onCancel, modalData, operatio
   const [recruits, setRecruits] = operations.recruitsOperations
   const id = modalData.recruitId
   const clickedRecruit = recruits.find(el => el.id === id)
+  
+  
+  if (!clickedRecruit) return <></>
+  
   const scheduleId = clickedRecruit.schedule
   const schedule = schedules.find((el) => el.id === scheduleId);
   
   return (<Modal title={title} open={open} onOk={onOk} onCancel={onCancel}>
+  
+    <DisplayWork currActions={clickedRecruit.curr_actions} stats={clickedRecruit.stats}/>
+  
     <h3>Select a schedule</h3>
     <Select
       disabled={disableSelect} 
@@ -179,6 +166,7 @@ export function SchedulerModal({title, open, onOk, onCancel, modalData, operatio
     
       })]}
     />
+
     <Schedule schedule={schedule}/>
   </Modal>)
 

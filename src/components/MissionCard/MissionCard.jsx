@@ -12,9 +12,10 @@ Select} from "antd";
 import { AntDesignOutlined, UserOutlined, MinusCircleOutlined} from '@ant-design/icons';
 
 
-export function MissionCard ({missions, setMisssions, operations, timeOperations}) {
-    const [recruits, setRecruits] = operations
-    const [weekday, day, turn] = timeOperations
+export function MissionCard ({operations}) {
+    const [missions, setMissions] = operations.pageOperations
+    const [recruits, setRecruits] = operations.recruitsOperations
+    const [weekday, day, turn] = operations.timeOperations
     
     const requirements = (reqs) => {
       if (reqs.length == 0){
@@ -60,44 +61,40 @@ export function MissionCard ({missions, setMisssions, operations, timeOperations
                 /*Before adding the participants we will add
                     the mission/training to the user*/
                 setRecruits((prev) => {
-                    return prev.map((r) => {
-                        const newRecruit = {... r}
-                        
-                        const stringifyActions = newRecruit.curr_actions.map(el => {
-                          return JSON.stringify(el)
-                        })
-                        
-                        /*If its in values, dont remove the mission from it*/
-                        if (value.includes(newRecruit.id)){
-                            /*If the mission was already added, dont add it again*/
-                            if (stringifyActions.includes(JSON.stringify([mission, timeOperations])) == false){                    
-                                newRecruit.curr_actions = [... r.curr_actions, [mission, timeOperations]]
+                    return prev.map((recruit) => {
+                        console.log( recruit.name, recruit.curr_actions)
+//                        if the id is inside values
+                        if (value.includes(recruit.id)){
+//                        return a recruit with a new current mission
+                            return {
+                                ... recruit,
+                                curr_actions: { mission: mission, hour: turn }
                             }
-                        } else {
-                            /*If the id is in the mission, we supposed that the mission was already added so we remove it*/
-                            newRecruit.curr_actions = r.curr_actions.filter(action => JSON.stringify(action) !== JSON.stringify([mission, timeOperations]))
-                        }
-                        console.log(newRecruit)
-                        return newRecruit
+//                            if its not inside values and curr actions is null
+                        } else if (recruit.curr_actions === null) { 
+                          return recruit
+                        
+//                        if its not inside the array and the current action IS NOT null
+//                           check if the mission inside of it is equal to mission displayed by the card
+                        } else if (
+                          recruit.curr_actions.mission.id === mission.id &&
+                          recruit.curr_actions.mission.type === mission.type
+                           ) {
+//                           remove the mission if IT IS equal
+                            return { ... recruit, curr_actions: null }
+                        } 
+                        return recruit
                     
                     })
                 })
      
-                setMisssions((prev) => {
-             
+                setMissions((prev) => {
                   prev.map((training) => {
                     /*Comparing the missions selected with all the missions
                     so that we can then add the participants to it*/
-                    if (training.id == mission.id) {
-                      console.log("hello",training)
-                      training.participants = [... value]
-                      return training
-                    } else {
-                      return training
-                    }
+                    if (!training.id === mission.id) return training
+                    return { ... training, participants: value, }
                   })
-                  
-                  
                   
                   console.log("prev", prev)
                   return prev

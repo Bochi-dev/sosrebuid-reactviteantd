@@ -16,8 +16,9 @@ import { MissionCard } from "../../components"
 
 
 export function Missions ({operations}) {
-  const [missions, setMissions, recruits, setRecruits, timeOperations] = operations.operations
-  
+  const [recruits, setRecruits] = operations.recruitsOperations
+  const [missions, setMissions] = operations.pageOperations
+  const timeOperations = operations.timeOperations
   
   const onFinish = (values) => {
     console.log('Success:', values);
@@ -170,12 +171,7 @@ export function Missions ({operations}) {
     </Space>
     
     <div>
-        <MissionCard 
-        missions={missions} 
-        setMisssions={setMissions} 
-        operations={[recruits, setRecruits]}
-        timeOperations={timeOperations}
-        />
+        <MissionCard operations={operations}/>
     </div>
     
   </>

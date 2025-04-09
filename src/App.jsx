@@ -1,4 +1,4 @@
-import { Menu, Button, Space} from "antd";
+import { Menu, Button, Space, Modal} from "antd";
 import {
 HomeOutlined,
 SunOutlined,
@@ -10,7 +10,8 @@ BuildOutlined,
 RadarChartOutlined,
 CompassOutlined,
 TableOutlined,
-AppstoreAddOutlined,} from "@ant-design/icons"
+AppstoreAddOutlined,
+ExclamationCircleFilled} from "@ant-design/icons"
 import { useState } from 'react'
 import { IconText } from "./components"
 import { changeStatByTurn, 
@@ -48,6 +49,10 @@ function App() {
   const [dayindex, setDayindex] = useState(0)
   const [routines, setRoutines] = useState()
   const [recruits, setRecruits] = useState(RECRUITS)
+  const [confirmMessage, setConfirmMessage] = useState("")
+  const schedules = [schedule1, schedule2]
+
+  
   
   
   const [trainings, setTrainings] = useState([
@@ -116,26 +121,8 @@ function App() {
   
   
   
-  /*Next turn is used to the game keeps moving forward*/
+  /*Next turn is used so game keeps moving forward*/
   function nextTurn () {
-    
-    
-    /*setting the trainings participants to []
-    so that in the next turn we can add them again
-    
-    note: this doesnt make much sense but its the only way
-    to assign the participants a propper schedule
-    */    
-    setTrainings((ts) => {      
-      ts.map((t) => {      
-        if (t.participants.length >= 1) {
-          t.participants = []
-        } else {
-          return t
-        }      
-      })
-      return ts
-    })
     
     
     /*substract 10% of its original value to any number*/
@@ -160,82 +147,63 @@ function App() {
     console.log("-------------------------------------------")
     
     
-    setRecruits((prev1) => {
+    setRecruits((prev) => {
         /*Iterate through the recruits*/
-        const newPrev1 = prev1.map((recruit,index) => {
+        return prev.map((recruit) => {
+          if (recruit.schedule == null){
+            return recruit          
+          }
+          const curr_actions = recruit.curr_actions
+          const recruitSchedule = schedules.find(el => el.id == recruit.schedule)
+          const reward = recruitSchedule.actions[turns]
+          let stats = recruit.stats 
           
-          const newRecruit = {... recruit}
-          const newStats = {... newRecruit.stats}
-          
-          /*Iterate through the missions of the recruits*/
-          newRecruit.curr_actions = newRecruit.curr_actions.map((action, index1) => {
-            const NewAction = [... action]
-            
-            const [mission, timeops] = NewAction
-            const newMission = {... mission}
-            
-            
-            
-            /*we check if the missions is scheduled for that day*/
-            if (timeops[0] == daysOfWeek[dayindex]) {
-                newMission.progress += 1
-                if (newMission.progress > newMission.turns){
-                  newMission.progress = 0
-                  
-                  if (checkReqs(mission.reqs, newStats)){ 
-                      const newRewards = newMission.reward.map((reward) => {
-                            if (reward.type == "calories"){
-                              looseGainWeight(newStats, reward.amount)
-                            } else if (reward.type == "fatigue"){
-                             manageFatigue(newStats, reward.amount)                  
-                            } else if (reward.type == "strength"){
-                              newStats.curr_strength += reward.amount
-                            } else if (reward.type == "inteligence"){
-                              newStats.curr_inteligence += reward.amount
-                            } else if (reward.type == "spirit"){
-                              newStats.curr_spirit += reward.amount
-                            }
-                            return reward
-                          })
-                      newMission.reward = newRewards
-                  }
-                  
+          if (reward.type == "calories"){
+            stats = looseGainWeight(stats, reward.amount)
+          } else if (reward.type == "fatigue"){
+            stats = manageFatigue(stats, reward.amount)                  
+          } else if ( reward.type == "work" || reward.type == "training" ){
+            if (curr_actions){
+              const mission = curr_actions.mission
+              const missionRewards = mission.reward
+              missionRewards.forEach((value,index,array) => {
+                console.log(value.type, "type")
+                if (value.type === "strength") {
+                  stats = { ... stats, curr_strength: stats.curr_strength + value.amount, }
                 }
+                if (value.type === "inteligence") {
+                  stats = { ... stats, curr_inteligence: stats.curr_inteligence + value.amount, }
+                }
+                if (value.type === "spirit") {
+                  stats = { ... stats, curr_spirit: stats.curr_spirit + value.amount, }
+                }
+              })
             }
-            
-            
-            console.log(newMission, timeops,index1)
-            return [newMission, timeops]
-          })
-          
-          
-          newRecruit.stats = changeStatByTurn(newStats, turns)
-          
-          
-          
-          return newRecruit
+
+          }
+          return { 
+            ... recruit,
+            stats: changeStatByTurn(stats, turns, reward.type)
+            }
         })
-      
     
-    return newPrev1
     })
     
     const hoursAday = 23
-    setTurns((prev) => {
+    
+    if (turns >= hoursAday) {
+      setDisableSelect(false)
+      setTurns(0) 
+      setDays((prev) => {        
+        return prev += 1    
+      })
+    } else {
+      setDisableSelect(true)
+      setTurns((prev) => {
         return prev += 1
       })
     
-    setDays((prev) => {
-      if (turns >= hoursAday) {
-        setTurns((prev) => {
-          return prev = 0
-        })
-        
-        return prev += 1
-      } else {
-        return prev
-      }
-    })
+    }
     
     if (turns >= hoursAday) {
       setDayindex((prev) => {
@@ -270,7 +238,7 @@ function App() {
       accordingly - make a system for that.
     */}
     
-      <Header days={days} dayName={daysOfWeek[dayindex]} turns={turns} nextTurn={nextTurn}/>
+      <Header days={days} dayName={daysOfWeek[dayindex]} turns={turns} nextTurn={nextTurn} disableSelect={disableSelect}/>
       
       <div style={{
             display: "flex", 
@@ -331,8 +299,15 @@ function SideMenu() {
   )
 }
 
-function Header({days, dayName, turns, nextTurn}) {
+function Header({days, dayName, turns, nextTurn, disableSelect}) {
+    const [modal, contextHolder] = Modal.useModal();
     const hour = HOURS[turns]
+    const planningMessage = (disableSelect) => {
+      if (turns == 24){
+        return "Review"
+      }
+      return disableSelect ? "Executing" : "Planning"
+    }
 
     return <div
         style={{
@@ -343,13 +318,29 @@ function Header({days, dayName, turns, nextTurn}) {
         }}
     >
     <Space>
-      <IconText icon={SunOutlined} text={`${dayName}, Days: ${days} Turns: ${hour}`}/>
+      <IconText icon={SunOutlined} text={`${dayName}, Days: ${days} Hour: ${hour}, Phase: ${planningMessage(disableSelect)}`}/>
       
       <Button onClick={() => {
-        nextTurn()
+        console.log(turns)
+        if (turns != 23){
+          nextTurn()
+        } else {
+          console.log("hello")
+          modal.confirm({
+            title: 'Ready to go to the next day?',
+            icon: <ExclamationCircleFilled />,
+            onOk() {
+              nextTurn()
+            },
+            onCancel() {
+              console.log('Cancel');
+            },
+          })
+        }
+      
       }}>Next Turn</Button>
     </Space>
-    
+    {contextHolder}
     </div>
 }
 

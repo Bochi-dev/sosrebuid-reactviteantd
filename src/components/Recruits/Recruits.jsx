@@ -160,6 +160,9 @@ export function Recruits({operations}){
             }
             >
             HP <Progress/>
+            FATIGUE <Progress percent={item.stats.fatigue_display}/>
+            BMI: {item.stats.bmi}<br/>
+            TASK: {(item.curr_actions) ? item.curr_actions.mission.name : "N/A ‼️"}
             </Card>
           )}
         />

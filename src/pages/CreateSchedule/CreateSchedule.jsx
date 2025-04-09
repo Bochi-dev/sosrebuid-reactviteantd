@@ -104,16 +104,8 @@ export const CreateSchedule = ({operations}) => {
     
     const hoursAday = 23
     if (turns >= hoursAday) {
-      setDisableSelect((prev) => {
-        return false
-      })
-      
-      
-      setTurns((prev) => {
-          return 0
-        }) 
-        
-        
+      setDisableSelect(false)
+      setTurns(0) 
       setDays((prev) => {        
         return prev += 1    
       })
@@ -127,9 +119,6 @@ export const CreateSchedule = ({operations}) => {
       })
     
     }
-    
-    
-    
     
     console.log("index in schedule page (previous index): ", turns - 1)
   

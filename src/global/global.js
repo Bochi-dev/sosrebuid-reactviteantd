@@ -35,19 +35,22 @@ export const debuffByFatigue = (stat, fatigue) => {
 }
 
 export const manageFatigue = (stats, amount) => {
-  console.log("stats fatigue",stats.fatigue)
   const fatigue = stats.fatigue + amount
   const fatigue_display = Math.floor((fatigue/0.10)*100)
   
   if (fatigue_display < 0.00){
-    stats.fatigue = 0.00
+    stats.fatigue = 0.0
     stats.fatigue_display = 0     
   } else {
     stats.fatigue = fatigue
     stats.fatigue_display = fatigue_display
   }
 
-  return stats
+  return { 
+    ... stats,
+    fatigue: Math.max(0.0, fatigue),
+    fatigue_display: Math.max(0.0, fatigue_display)
+  }
 }
 
 export function getStat(stat, stats) {
@@ -131,7 +134,6 @@ export const looseGainWeight = (stats, amount) => {
 
   let calories = stats.calories + (amount)
   
-  console.log(calories)
   if (calories > caloriesOfAKg){
     calories = 0
     stats.weight += 1
@@ -140,17 +142,16 @@ export const looseGainWeight = (stats, amount) => {
   
     calories = caloriesOfAKg + calories
     stats.weight -= 1
-    
   }
 
   const bmi = stats.weight / stats.height**2;
   const category = getBMICategory(bmi)
   
-  stats.calories = calories
-  stats.bmi = `${Math.floor(bmi)} - ${category}`
-  
-  
-  return stats
+  return { 
+    ...stats, 
+    bmi: `${Math.floor(bmi)} - ${category}`,
+    calories: calories,
+  }
 }
 
 /*substract 10% of its original value to any number*/
@@ -178,20 +179,22 @@ export const plusToStat = (stat, amount) => {
 }
 
 
-export const changeStatByTurn = (stats, turns) => {
-  const newStats = {... stats}
- 
-  looseGainWeight(newStats, -50)
-  manageFatigue(newStats, 0.00416)
+export const changeStatByTurn = (stats, turns, rewardType) => {
+  stats = looseGainWeight(stats, -50)
+  console.log(rewardType !== "fatigue", rewardType)
+  if (rewardType !== "fatigue") {
+    stats = manageFatigue(stats, 0.00416)
+  }
   
   if (turns >= 24) {
-    newStats.curr_strength = minusToStat(newStats.curr_strength)
-    newStats.curr_inteligence = minusToStat(newStats.curr_strength)
-    newStats.curr_strength = minusToStat(newStats.curr_strength)
+    return {
+        ... stats,
+        curr_strength: minusToStat(stats.curr_strength),
+        curr_inteligence:  minusToStat(stats.curr_strength),
+        curr_strength: minusToStat(stats.curr_strength),
+    }
   }
- 
- return newStats
-  
+  return stats
 }
 
 /*MAke a function that calculcates the hours without sleep based on the fatigueDebuff

@@ -25,7 +25,8 @@ const APOCALYPSEBIOS = [
 ];
 
 
-export const NUMBEROFRECRUITS = 9
+
+export const NUMBEROFRECRUITS = 1
 
 const getRandoIndexOfList = (list) => Math.floor(Math.random()*list.length)
 const generateRandomRecruits = amount => {
@@ -37,8 +38,8 @@ const generateRandomRecruits = amount => {
         x.push({
             id:i,
             name:NAMESLIST[getRandoIndexOfList(NAMESLIST)],
-            curr_actions: [],
-            schedule: null,
+            curr_actions: null,
+            schedule: 0,
             desc: APOCALYPSEBIOS[getRandoIndexOfList(APOCALYPSEBIOS)],
             stats: {
               curr_strength: generateRandomNumberInLength(20, 30),
@@ -54,7 +55,6 @@ const generateRandomRecruits = amount => {
               fatigue_display:0,
               /*Energy and Happiness*/
               curr_happiness: 100,
-              
               min_stat_value: 1,
               max_stat_value: 100,
               }
