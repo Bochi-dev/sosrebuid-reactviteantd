@@ -252,7 +252,7 @@ function App() {
                 timeOperations: [daysOfWeek[dayindex], days, turns], 
                 schedules: [schedule1, schedule2],
                 resourcesOperations: [resources, setResources],
-                operationsDisableStuff: [disableSelect, setDisableSelect]
+                disabledOperations: [disableSelect, setDisableSelect]
                 }}/>
         </div>
     </>
@@ -303,7 +303,8 @@ function Header({days, dayName, turns, nextTurn, disableSelect}) {
     const [modal, contextHolder] = Modal.useModal();
     const hour = HOURS[turns]
     const planningMessage = (disableSelect) => {
-      if (turns == 24){
+      console.log("hello2")
+      if (turns === 23){
         return "Review"
       }
       return disableSelect ? "Executing" : "Planning"
