@@ -1,3 +1,7 @@
+import brainImage from '/images/brain.jpg';
+import bicepImage from '/images/bicep.jpg';
+import treeImage from '/images/tree.jpg';
+
 export const NAMESLIST = [
   "Alejandro", "Beatriz", "Carlos", "Diana", "Eduardo", "Fernanda", "Gabriel", "Hilda", "Iván", "Julia",
   "Karla", "Luis", "Mariana", "Nicolás", "Olga", "Pablo", "Quintín", "Raquel", "Santiago", "Teresa",
@@ -24,6 +28,19 @@ const APOCALYPSEBIOS = [
   "Chef turned hunter. Cooking rats and roots, spicing survival with memories of real meals.",
 ];
 
+const classes = [
+  {id:1, name:"presecurer", label:"Pre-Securer", level: 1, icon:brainImage, benefitsDesc: [
+      "Necesary to go in any exploration",
+  ]},
+  {id:2, name:"securer", label:"Securer", level: 1, icon:bicepImage, benefitsDesc: [
+      "+30 to weight in explorations",
+  ]},
+  {id:3, name:"postsecurer", label:"Post-Securer", level: 1, icon:treeImage, benefitsDesc: [
+      "more resources in explorations",
+  ]},
+
+]
+
 
 
 export const NUMBEROFRECRUITS = 1
@@ -41,6 +58,10 @@ const generateRandomRecruits = amount => {
             curr_actions: null,
             schedule: 0,
             desc: APOCALYPSEBIOS[getRandoIndexOfList(APOCALYPSEBIOS)],
+            classes: [[classes[0]],[classes[1]],[classes[2]]],
+            get canCarry() {
+              return Math.floor(this.stats.curr_strength/2)
+            },
             stats: {
               curr_strength: generateRandomNumberInLength(20, 30),
               curr_inteligence: generateRandomNumberInLength(20, 30),
@@ -66,4 +87,67 @@ const generateRandomRecruits = amount => {
 
 
 export const RECRUITS = generateRandomRecruits(NUMBEROFRECRUITS)
+
+
+const levelUpClass = (clss) => {
+  return [{ ... clss, level: Math.min(clss.level + 1, 3) }]
+}
+
+const classInSlots = (slots, reward) => {
+  return slots.map( el => JSON.stringify((el.length === 0) ? [] : el[0].id)).includes(JSON.stringify(reward.id))
+}
+
+const pickAvailableSlot = (slots) => {
+  for (let i = 0; i < slots.length; i++){
+    const slot = slots[i]
+    if (slot.length === 0) return i
+  }
+}
+
+const assignClass = (slots, reward) => {
+  reward = classes.filter(el => el.id === reward[0].id)[0]
+  
+  if (classInSlots(slots, reward)) {
+    console.log("1")
+    return slots.map((slot, index) => {
+      if (slot.length > 0) {
+        const clss = slot[0]
+        if (clss.name === reward.name) return levelUpClass(clss)
+        return slot         
+      } else { 
+        return slot
+      }
+    })
+  }
+  
+  const availableSlot = pickAvailableSlot(slots)
+  
+  return slots.map((slot, index) => {
+    if (availableSlot === index) return [ reward ]
+    return slot
+  })
+}
+
+  
+
+export const proccessEducation = (recruit) => {
+  const edu = recruit.curr_actions.mission
+  console.log(edu)
+  if (edu.progress >= edu.turns) {
+    return { 
+      ... recruit,
+      classes: assignClass(recruit.classes, edu.reward),
+      curr_actions: { 
+        ... recruit.curr_actions,
+        mission: { ... edu, progress: 0}
+      }
+    }
+  }
+  return { ... recruit, 
+    curr_actions: { 
+      ... recruit.curr_actions,
+      mission: { ... edu,  progress: edu.progress + 1, }
+    }
+  }
+}
 

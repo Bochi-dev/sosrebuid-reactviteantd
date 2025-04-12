@@ -118,23 +118,9 @@ const randomListIndex = list => Math.floor(Math.random() * list.length)
 
 
 export const Exploration = ({operations}) => {
-  
-//  console.log(operations)
-
-  const [missions, setMissions, recruits, setRecruits, timeOperations] = operations.operations 
-  const [testRecruits, setTestRecruits] = useState(recruits.map(r => {
-  return {... r,
-    class: [
-      [classes[randomListIndex(classes)]],
-      [],
-      [],
-    ],
-    canCarry: Math.floor(r.stats.curr_strength / 2)
-  }
-  
-  }))
-
-
+  const [recruits, setRecruits] = operations.recruitsOperations 
+  const [missions, setMissions] = operations.pageOperations
+  const timeOperations = operations.timeOperations
   const [expeditions, setExpeditions] = useState([
     /*example {
     id:0,
@@ -278,7 +264,6 @@ export const Exploration = ({operations}) => {
                 bagsWeight = calc
                 bag.push({ ... re})
                 newResources = newResources.filter( nre => JSON.stringify(nre) !== JSON.stringify(re))
-                
               }
               
               return [bag, newResources]
@@ -377,7 +362,7 @@ export const Exploration = ({operations}) => {
     <div>
       <Space>
         <ExplorationForm 
-        operations={[missions, setMissions, testRecruits, setTestRecruits, timeOperations]}
+        operations={[missions, setMissions, recruits, setRecruits, timeOperations]}
         expeditions={expeditions}
         setExpeditions={setExpeditions}
         inExpedition={inExpedition}
@@ -405,7 +390,7 @@ export const Exploration = ({operations}) => {
               
               <p>The partipants are:<br/>
               {item.participants.map(id => (
-                <>{testRecruits.map(tr => {
+                <>{recruits.map(tr => {
                     if (tr.id === id){
                       return tr.name
                     }

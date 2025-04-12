@@ -21,7 +21,7 @@ looseGainWeight,
 schedule1, 
 schedule2, 
 RECRUITS,
-HOURS} from "./global"
+HOURS, proccessEducation} from "./global"
 import { Route, Routes, useNavigate, useLocation } from "react-router-dom"
 import { Main,
 Missions,
@@ -53,6 +53,46 @@ function App() {
   const schedules = [schedule1, schedule2]
 
   
+  const [education, setEducation] = useState([
+        {
+          id:1,
+          type:"education",
+          name:"Pre Securer Master Class",
+          reqs:[
+            {type:"inteligence", amount: 20, label: "20 Inteligence"},
+          ],
+          reward:[{type:"education", id:1, label:"Pre Securer Class"}],
+          progress:0,
+          turns: 7,
+          participants:[]
+        },
+        {
+          id:2,
+          type:"education",
+          name:"Securer Master Class",
+          reqs:[
+            {type:"inteligence", amount: 10, label: "10 Inteligence"},
+            {type:"strength", amount: 20, label: "20 Strength"},
+          ],
+          reward:[{type:"education", id:2, label:"Securer Class"}],
+          progress:0,
+          turns: 7,
+          participants:[]
+        },
+        {
+          id:3,
+          type:"education",
+          name:"Post Securer Master Class",
+          reqs:[
+            {type:"inteligence", amount: 10, label: "10 Inteligence"},
+            {type:"strength", amount: 20, label: "20 Strength"},
+          ],
+          reward:[{type:"education", id:3, label:"Post Securer"}],
+          progress:0,
+          turns: 7,
+          participants:[]
+        },
+    ])
   
   
   const [trainings, setTrainings] = useState([
@@ -108,23 +148,48 @@ function App() {
   if (useLocation().pathname == "/Training") {
      x = trainings
      setX = setTrainings
-  } else {
+  } else if (useLocation().pathname == "/Missions") {
      x = missions
      setX = setMissions
+  } else {
+    x = education
+    setX = setEducation
   }
-  
   
   const [turns, setTurns] = useState(0)
   const [days, setDays] = useState(1)
   
   
   
+
+const rewardsFromWork = (missionRewards, stats) => {
+  missionRewards.forEach((value,index,array) => {
+    if (value.type === "strength") {
+      stats = { ... stats, curr_strength: stats.curr_strength + value.amount, }
+    }
+    if (value.type === "inteligence") {
+      stats = { ... stats, curr_inteligence: stats.curr_inteligence + value.amount, }
+    }
+    if (value.type === "spirit") {
+      stats = { ... stats, curr_spirit: stats.curr_spirit + value.amount, }
+    }
+  })
+  
+  return stats
+}
+  
+  
+  
+const processWork = (mission, stats) => {
+  const missionRewards = mission.reward
+  return rewardsFromWork(missionRewards, stats)
+}
+  
+  
   
   
   /*Next turn is used so game keeps moving forward*/
   function nextTurn () {
-    
-    
     /*substract 10% of its original value to any number*/
     const minus1toStats = (stat) => {
         const tenpercent = stat * 0.1
@@ -132,7 +197,6 @@ function App() {
             return stat -= tenpercent
         }
         return stat
-        
     }
     
     /*This will replace the current way we are adding stats to
@@ -144,7 +208,6 @@ function App() {
         return stat
     }
     
-    console.log("-------------------------------------------")
     
     
     setRecruits((prev) => {
@@ -165,21 +228,12 @@ function App() {
           } else if ( reward.type == "work" || reward.type == "training" ){
             if (curr_actions){
               const mission = curr_actions.mission
-              const missionRewards = mission.reward
-              missionRewards.forEach((value,index,array) => {
-                console.log(value.type, "type")
-                if (value.type === "strength") {
-                  stats = { ... stats, curr_strength: stats.curr_strength + value.amount, }
-                }
-                if (value.type === "inteligence") {
-                  stats = { ... stats, curr_inteligence: stats.curr_inteligence + value.amount, }
-                }
-                if (value.type === "spirit") {
-                  stats = { ... stats, curr_spirit: stats.curr_spirit + value.amount, }
-                }
-              })
+              if (mission.type === "education"){
+                recruit = proccessEducation(recruit)
+              } else {
+                stats = processWork(mission, stats) 
+              }
             }
-
           }
           return { 
             ... recruit,
@@ -207,7 +261,6 @@ function App() {
     
     if (turns >= hoursAday) {
       setDayindex((prev) => {
-        //console.log("dayindex",prev)
         if (prev + 1 >= daysOfWeek.length) {
           return prev = 0
         }
@@ -278,8 +331,8 @@ function SideMenu() {
             {label: "Home", key:"/", icon: <HomeOutlined/>},
             {label: "Missions", key:"/Missions", icon: <ProductFilled/>},
             {label: "Training", key:"/Training", icon: <ThunderboltFilled/>},
-            {label: "Create Schedule", key:"/Create_Schedule", icon: <OrderedListOutlined />},
-            {label: "Classes and Teams", key:"/Classes", icon: <RadarChartOutlined />},
+            {label: "Create Schedule", key:"/Create_Schedule", icon: <OrderedListOutlined />, disabled: true},
+            {label: "School (Classes)", key:"/Classes", icon: <RadarChartOutlined />},
             {label: "Exploration", key:"/Exploration", icon: <CompassOutlined />},
             {label: "Walls", key:"/Walls", icon: <AppstoreAddOutlined />},
             
@@ -303,7 +356,6 @@ function Header({days, dayName, turns, nextTurn, disableSelect}) {
     const [modal, contextHolder] = Modal.useModal();
     const hour = HOURS[turns]
     const planningMessage = (disableSelect) => {
-      console.log("hello2")
       if (turns === 23){
         return "Review"
       }
@@ -322,11 +374,9 @@ function Header({days, dayName, turns, nextTurn, disableSelect}) {
       <IconText icon={SunOutlined} text={`${dayName}, Days: ${days} Hour: ${hour}, Phase: ${planningMessage(disableSelect)}`}/>
       
       <Button onClick={() => {
-        console.log(turns)
         if (turns != 23){
           nextTurn()
         } else {
-          console.log("hello")
           modal.confirm({
             title: 'Ready to go to the next day?',
             icon: <ExclamationCircleFilled />,
@@ -334,7 +384,6 @@ function Header({days, dayName, turns, nextTurn, disableSelect}) {
               nextTurn()
             },
             onCancel() {
-              console.log('Cancel');
             },
           })
         }

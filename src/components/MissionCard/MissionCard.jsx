@@ -15,6 +15,7 @@ import { AntDesignOutlined, UserOutlined, MinusCircleOutlined} from '@ant-design
 export function MissionCard ({operations}) {
     const [missions, setMissions] = operations.pageOperations
     const [recruits, setRecruits] = operations.recruitsOperations
+    const [disableSelect, setDisableSelect] = operations.disabledOperations
     const [weekday, day, turn] = operations.timeOperations
     
     const requirements = (reqs) => {
@@ -33,7 +34,7 @@ export function MissionCard ({operations}) {
           missions.map((mission) => {
             return <Card key={mission.id} title={mission.name} variant="borderless" style={{ width: 300 }}>
             
-            <strong>Progress</strong>: <Progress percent={Math.floor((mission.progress/mission.turns)*100)}/> 
+            {/*<strong>Progress</strong>: <Progress percent={Math.floor((mission.progress/mission.turns)*100)}/>*/}
             
             
             <p>
@@ -50,6 +51,7 @@ export function MissionCard ({operations}) {
             })}
             
             <Select
+              disabled={disableSelect}
               defaultValue={mission.participants}
               mode="multiple"
               style={{

@@ -67,7 +67,6 @@ const DisplayWork = ({currActions, stats}) => {
 
 
 const Schedule = ({schedule}) => {
-    console.log(schedule)
     if (!schedule) return <h3>Nothing was scheduled 🙅🏻‍♂️</h3>
     
     const display = hoursArray.map((prev) => {
@@ -111,10 +110,10 @@ const Schedule = ({schedule}) => {
 
 
 
-export function SchedulerModal({title, open, onOk, onCancel, modalData, operations}) {
+export function SchedulerModal({modalData, operations}) {
   if (!modalData) return  <></>
- 
-  const [disableSelect, setDisableSelect] = operations.operationsDisableStuff
+    
+  const [disableSelect, setDisableSelect] = operations.disabledOperations
   const schedules = operations.schedules
   const [recruits, setRecruits] = operations.recruitsOperations
   const id = modalData.recruitId
@@ -126,7 +125,7 @@ export function SchedulerModal({title, open, onOk, onCancel, modalData, operatio
   const scheduleId = clickedRecruit.schedule
   const schedule = schedules.find((el) => el.id === scheduleId);
   
-  return (<Modal title={title} open={open} onOk={onOk} onCancel={onCancel}>
+  return (<>
   
     <DisplayWork currActions={clickedRecruit.curr_actions} stats={clickedRecruit.stats}/>
   
@@ -150,25 +149,17 @@ export function SchedulerModal({title, open, onOk, onCancel, modalData, operatio
             return recruit
           })
         })
-        
-        console.log("Recruit state after update: ", recruits)
-        
-        
-        
-        
       }}
-      
       options={[{label:"None", value:null}, ... schedules.map((r) => {
         return {
           label: r.title,
           value: r.id,
         }
-    
       })]}
     />
 
     <Schedule schedule={schedule}/>
-  </Modal>)
+  </>)
 
 
 }

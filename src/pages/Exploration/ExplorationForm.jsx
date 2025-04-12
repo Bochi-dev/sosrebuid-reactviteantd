@@ -243,7 +243,7 @@ export const ExplorationForm = ({operations, expeditions, setExpeditions, locati
   
   return (<>
   
-    {recruits.map((tr, index) => <div key={index}> <span>{tr.name}</span> <RecruitClasses classesList={tr.class} /></div>)}
+    {recruits.map((tr, index) => <div key={index}> <span>{tr.name}</span> <RecruitClasses classesList={tr.classes} /></div>)}
   
   
     <h4>Exploration Form</h4>

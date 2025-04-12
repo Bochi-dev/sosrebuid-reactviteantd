@@ -5,7 +5,10 @@ MessageOutlined,
 MenuOutlined,
 ArrowRightOutlined,
 UserOutlined,
-DownOutlined} from "@ant-design/icons"
+DownOutlined,
+RadarChartOutlined,
+AntDesignOutlined,
+CloseOutlined} from "@ant-design/icons"
 const daysOfWeek = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
 import { GameCard, IconText, SchedulerModal} from "../../components"
 import { debuffByFatigue } from "../../global"
@@ -31,61 +34,122 @@ const IcontButton = ({icon, text, action}) => (
 )
 
 
+const display = (statToDisplay,stats) => {
+    const fatigue = stats.fatigue
+    const fatigueDebuff = debuffByFatigue(statToDisplay,fatigue) 
+    
+    if ( fatigueDebuff > 0 ){
+        return `${statToDisplay-fatigueDebuff} (${statToDisplay} - ${fatigueDebuff})`
+    }  
+    return statToDisplay     
+    
+}
+
+
+
+const ClassesDetails = ({slots}) => {
+  slots = slots.map(el => {
+    if (el.length === 0 ) return {
+      avatar:  <Avatar icon={<CloseOutlined/>} />,
+      title: "Empty class slot",
+      description: "N/A"
+      
+    }
+    const slot = el[0]
+    
+    return {
+      avatar:  <Avatar src={<img src={slot.icon} alt="avatar" />} />,
+      title: slot.name,
+      description: slot.benefitsDesc[0]
+    }
+  })
+  return (
+   <List
+    itemLayout="horizontal"
+    dataSource={slots}
+    renderItem={(item, index) => (
+      <List.Item>
+        <List.Item.Meta
+          avatar={item.avatar}
+          title={item.title}
+          description={item.description}
+        />
+      </List.Item>
+    )}
+  /> 
+  )
+}
+
+
+const ClassAvatar = ({slot}) => {
+  if (slot.length === 0) return <Tooltip title="Empty Class Slot" placement="top"><Avatar icon={<CloseOutlined/>}/></Tooltip>
+  slot = slot[0]
+  return <Tooltip title={slot.name} placement="top">
+    <Avatar src={<img src={slot.icon} alt="avatar" />} />
+  </Tooltip>
+}
+
+const RecruitStats = ({modalData}) => {
+
+  return <>
+    <p>Strength: {display(modalData.curr_strength, modalData)}</p>
+    <p>Inteligence: {display(modalData.curr_inteligence, modalData)}</p>
+    <p>Spirit: {display(modalData.curr_spirit, modalData)}</p>
+    <p>Weight: {modalData?.weight}</p>
+    <p>Height: {modalData?.height}</p>
+    <p>Calories: {modalData?.calories}</p>
+    <p>BMI: {modalData?.bmi}</p>
+    <p>Fatigue: {modalData?.fatigue_display}%</p>
+  </>
+
+}
+
 
 export function Recruits({operations}){
     
     const [recruits, setRecruits] = operations.recruitsOperations
     const [id, setId] = useState(0)
+    
+//    modal states
     const [modalData, setModalData] = useState(false)
-    
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isModalStatsOpen, setIsModalStatsOpen] = useState(false);
+    const [modalType, setModalType] = useState(null)
+    const [modalTitle, setModalTitle] = useState("")
     
-    const showModal = (id) => {
-      setModalData({
-        recruitId: id,
-        })
-      setIsModalOpen(true);
-
+//    change the data and title to show the scheduler
+    const setSchedulerData = (id) => {
+      setModalTitle("Recruit Scheduler")
+      setModalData({ recruitId: id })
+    };
+//    change the data and title to show the stats
+    const setStatsData = (id) => {
+      const recruit = recruits.find(el => el.id == id)
+      setModalData(recruit.stats)
+      setModalTitle("Recruit Stats")
     };
     
+    const setClassesData = () => {
+      const recruit = recruits.find(el => el.id == id)
+      setModalData(recruit.classes)
+      setModalTitle("Recruit Classes")
+    }
     
     const handleOk = () => {
       setIsModalOpen(false);
       setModalData(false)
+      setModalType(null)
+      setModalTitle("")
+      
     };
     
     const handleCancel = () => {
       setIsModalOpen(false);
       setModalData(false)
+      setModalType(null)
+      setModalTitle("")
     };
     
-    const showModalStat = (id) => {
-      setIsModalStatsOpen(true);
-      const recruit = recruits.filter((el) => {
-       if (el.id == id) {
-        return el
-       } 
-      })[0]
-      
-      console.log("moda_recruit: ",recruit)
-      setModalData(recruit.stats)
-
-    };
-    
-    const handleStatsOk = () => {
-      setIsModalStatsOpen(false);
-      setModalData(false)
-    };
-    
-    const handleStatsCancel = () => {
-      setIsModalStatsOpen(false);
-      setModalData(false)
-    };
-    
-    
-    
-    
+//    options of drop down
     const items = [
       {
         label: 'Stats',
@@ -97,17 +161,25 @@ export function Recruits({operations}){
         key: '2',
         icon: <MenuOutlined />,
       },
+      {
+        label: 'Classes',
+        key: '3',
+        icon: <RadarChartOutlined />,
+      },
     ];
 
-
+//    handle drop down click
     const handleMenuClick = e => {
-      console.log('click', e);
       const key = e.key
       if (key === "1"){
-        showModalStat(id)
+        setStatsData(id)
+      } else if (key === "2"){
+        setSchedulerData(id)
       } else {
-        showModal(id)
+        setClassesData(id)
       }
+      setIsModalOpen(true)
+      setModalType(key)
     };
 
     const menuProps = {
@@ -115,16 +187,7 @@ export function Recruits({operations}){
       onClick: handleMenuClick,
     };
     
-    const display = (statToDisplay,stats) => {
-        const fatigue = stats.fatigue
-        const fatigueDebuff = debuffByFatigue(statToDisplay,fatigue) 
-        
-        if ( fatigueDebuff > 0 ){
-            return `${statToDisplay-fatigueDebuff} (${statToDisplay} - ${fatigueDebuff})`
-        }  
-        return statToDisplay     
-        
-    }
+    
     
 
     return (<>
@@ -162,31 +225,25 @@ export function Recruits({operations}){
             HP <Progress/>
             FATIGUE <Progress percent={item.stats.fatigue_display}/>
             BMI: {item.stats.bmi}<br/>
-            TASK: {(item.curr_actions) ? item.curr_actions.mission.name : "N/A ‼️"}
+            TASK: {(item.curr_actions) ? item.curr_actions.mission.name : "N/A ‼️"}<br/>
+            <Avatar.Group>
+              {item.classes.map(e => <ClassAvatar slot={e}/>)}
+            </Avatar.Group>
             </Card>
           )}
         />
      
-      <SchedulerModal 
-        title="Schedule"
-        open={isModalOpen}
-        onOk={handleOk} 
-        onCancel={handleCancel}
+      {/*<SchedulerModal 
         modalData={modalData}
         operations={operations}
-      />
+      />*/}
         
-      <Modal title="Stats" open={isModalStatsOpen} onOk={handleStatsOk} onCancel={handleStatsCancel}> 
-          <p>Strength: {display(modalData.curr_strength, modalData)}</p>
-          <p>Inteligence: {display(modalData.curr_inteligence, modalData)}</p>
-          <p>Spirit: {display(modalData.curr_spirit, modalData)}</p>
-          <p>Weight: {modalData?.weight}</p>
-          <p>Height: {modalData?.height}</p>
-          <p>Calories: {modalData?.calories}</p>
-          <p>BMI: {modalData?.bmi}</p>
-          <p>Fatigue: {modalData?.fatigue_display}%</p>
+      {/* my modal */}
+      <Modal title={modalTitle} open={isModalOpen} onOk={handleOk} onCancel={handleCancel}> 
+        {modalType === "1" && modalData && <RecruitStats modalData={modalData} />}
+        {modalType === "2" && modalData && <SchedulerModal modalData={modalData} operations={operations} />}
+        {modalType === "3" && modalData && <ClassesDetails slots={modalData}/>}
       </Modal>
-      
       
     </>)
 }
