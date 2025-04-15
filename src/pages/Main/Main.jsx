@@ -10,25 +10,14 @@ export function Main({operations}) {
   
 //  MAKE A FUNCTION TO DISPLAY THE CHANGES IN THE RESOURCES AS TIME PASSES
 //  RED if its decreasing and GREEN if its increasing, for the food, make red IF its less the the number of recruits
-  const displayResourceCard = (resources) => {
-    let cards = []
-    Object.keys(resources).forEach((name) => {
-      cards.push(<GameCard title={name} amount={resources[name]}/>)
-    })
-    
-    return cards
-  }
+  
   
   return (
     <>
-        <Space>
-        
-          <GameCard title="People" amount={recruits.length}/>
-          {displayResourceCard(resources)}
-          <GameCard title="Happiness" amount="0%"/>
-        </Space>
+      <h1>Recruits</h1>
+      <div>
         <Recruits operations={operations}/>
-
+      </div>
     </>
   )
 }

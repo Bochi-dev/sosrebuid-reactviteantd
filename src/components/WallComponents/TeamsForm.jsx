@@ -1,6 +1,6 @@
 import { Button, Checkbox, Form, Input, Select, Space } from 'antd';
 import { useState } from "react"
-import { calculateTeamHealth } from "../global"
+import { calculateTeamHealth } from "../../global"
 
 export const TeamsForm = ({teams, setTeams, recruits, setRecruits}) => {
     const [selectedValue, setSelectedValue] = useState([]);
@@ -24,22 +24,17 @@ export const TeamsForm = ({teams, setTeams, recruits, setRecruits}) => {
             maxHealth:10,
             get recruits(){
               return this.recruitIds.map( el => {
-                return recruits.filter( er => er.id === el )[0]
+                return recruits.find( er => er.id === el )
               })
             },
-
-            health: () => calculateTeamHealth({ recruitIds: members, maxHealth: 10 }, recruits),
-            
             get powerLevel() {
               let total = 0
               for (let recruit of this.recruits) {
-                  const recruitsLevel = recruit.level
+                  const recruitsLevel = recruit.level(recruit)
                   total += recruitsLevel
               }
-              
               return total
             } 
-             
           }
         ])
         
@@ -57,10 +52,13 @@ export const TeamsForm = ({teams, setTeams, recruits, setRecruits}) => {
         return inTeam
     }
     
-    const options = recruits.map(el => ({ desc:el.level, 
-      hp:el.health, maxhp:el.maxHealth, label: el.name, value: el.id, disabled: (inTeams().includes(el.id) ? true : false)}))
-    
-    console.log(options) 
+    const options = recruits.map(el => ({
+        desc:el.level(el), 
+        hp:el.stats.health, 
+        maxhp:el.stats.maxHealth, 
+        label: el.name, 
+        value: el.id, 
+        disabled: (inTeams().includes(el.id) || el.curr_actions !== null)}))
     
     return (
         <Form
@@ -88,7 +86,6 @@ export const TeamsForm = ({teams, setTeams, recruits, setRecruits}) => {
               onChange={onChange}
               defaultValue={selectedValue}
               optionRender={option => {
-                console.log("option: ", option)
                 return (
                     <Space>
                       lvl: {option.data.desc}

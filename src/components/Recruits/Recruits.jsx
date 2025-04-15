@@ -10,7 +10,7 @@ RadarChartOutlined,
 AntDesignOutlined,
 CloseOutlined} from "@ant-design/icons"
 const daysOfWeek = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
-import { GameCard, IconText, SchedulerModal} from "../../components"
+import { GameCard, IconText, SchedulerModal, ClassesAvatars} from "../../components"
 import { debuffByFatigue } from "../../global"
 import {Space, 
 List, 
@@ -81,13 +81,7 @@ const ClassesDetails = ({slots}) => {
 }
 
 
-const ClassAvatar = ({slot}) => {
-  if (slot.length === 0) return <Tooltip title="Empty Class Slot" placement="top"><Avatar icon={<CloseOutlined/>}/></Tooltip>
-  slot = slot[0]
-  return <Tooltip title={slot.name} placement="top">
-    <Avatar src={<img src={slot.icon} alt="avatar" />} />
-  </Tooltip>
-}
+
 
 const RecruitStats = ({modalData}) => {
 
@@ -222,13 +216,11 @@ export function Recruits({operations}){
               </Dropdown>
             }
             >
-            HP <Progress/>
+            HP <Progress percent={(item.stats.health/item.stats.maxHealth)*100} format={() => item.stats.health}/>
             FATIGUE <Progress percent={item.stats.fatigue_display}/>
             BMI: {item.stats.bmi}<br/>
             TASK: {(item.curr_actions) ? item.curr_actions.mission.name : "N/A ‼️"}<br/>
-            <Avatar.Group>
-              {item.classes.map(e => <ClassAvatar slot={e}/>)}
-            </Avatar.Group>
+            <ClassesAvatars classes={item.classes}/>
             </Card>
           )}
         />

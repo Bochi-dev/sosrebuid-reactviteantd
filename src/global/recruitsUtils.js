@@ -43,7 +43,7 @@ const classes = [
 
 
 
-export const NUMBEROFRECRUITS = 1
+export const NUMBEROFRECRUITS = 6
 
 const getRandoIndexOfList = (list) => Math.floor(Math.random()*list.length)
 const generateRandomRecruits = amount => {
@@ -52,17 +52,32 @@ const generateRandomRecruits = amount => {
     }
     const x = []
     for (let i = 0; i < amount; i++){
+        const level = (obj) => {
+            let lvl = 0
+            for (let slot of obj.classes){
+                if (slot.length > 0){
+                    const slots_class = slot[0]
+                    lvl += slots_class.level
+                }
+            }
+            return lvl
+        }
+    
+    
         x.push({
             id:i,
             name:NAMESLIST[getRandoIndexOfList(NAMESLIST)],
             curr_actions: null,
             schedule: 0,
             desc: APOCALYPSEBIOS[getRandoIndexOfList(APOCALYPSEBIOS)],
-            classes: [[classes[0]],[classes[1]],[classes[2]]],
+            classes: [(Math.floor(Math.random()*2) === 1) ? [classes[0]] : [],[classes[1]],[classes[2]]],
             get canCarry() {
               return Math.floor(this.stats.curr_strength/2)
             },
+            level:level,
             stats: {
+              health: 10,
+              maxHealth: 10,
               curr_strength: generateRandomNumberInLength(20, 30),
               curr_inteligence: generateRandomNumberInLength(20, 30),
               curr_spirit: generateRandomNumberInLength(20, 30),

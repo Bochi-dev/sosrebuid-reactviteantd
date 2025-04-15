@@ -10,7 +10,7 @@ InputNumber,
 Flex, Progress,
 Select} from "antd";
 import { AntDesignOutlined, UserOutlined, MinusCircleOutlined} from '@ant-design/icons';
-
+import { NotAvailableMessage } from "../../components"
 
 export function MissionCard ({operations}) {
     const [missions, setMissions] = operations.pageOperations
@@ -33,15 +33,10 @@ export function MissionCard ({operations}) {
           {
           missions.map((mission) => {
             return <Card key={mission.id} title={mission.name} variant="borderless" style={{ width: 300 }}>
-            
-            {/*<strong>Progress</strong>: <Progress percent={Math.floor((mission.progress/mission.turns)*100)}/>*/}
-            
-            
             <p>
             <strong>Requirements</strong>
             </p>
             {requirements(mission.reqs)}
-
             <p>
             <strong>Rewards</strong>
             </p>
@@ -106,9 +101,15 @@ export function MissionCard ({operations}) {
                 return {
                   label: r.name,
                   value: r.id,
+                  disabled: (r.curr_actions !== null)
                 }
-              
               })}
+              optionRender={option => (
+                <Space>
+                  {option.label}
+                  <NotAvailableMessage curr_actions={option.data.curr_actions}/>
+                </Space>
+              )}
             />
             
             

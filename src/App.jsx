@@ -13,7 +13,7 @@ TableOutlined,
 AppstoreAddOutlined,
 ExclamationCircleFilled} from "@ant-design/icons"
 import { useState } from 'react'
-import { IconText } from "./components"
+import { IconText, GameCard } from "./components"
 import { changeStatByTurn, 
 manageFatigue, 
 checkReqs, 
@@ -21,7 +21,9 @@ looseGainWeight,
 schedule1, 
 schedule2, 
 RECRUITS,
-HOURS, proccessEducation} from "./global"
+HOURS, 
+proccessEducation,
+damageTaken} from "./global"
 import { Route, Routes, useNavigate, useLocation } from "react-router-dom"
 import { Main,
 Missions,
@@ -51,6 +53,14 @@ function App() {
   const [recruits, setRecruits] = useState(RECRUITS)
   const [confirmMessage, setConfirmMessage] = useState("")
   const schedules = [schedule1, schedule2]
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("")
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
 
   
   const [education, setEducation] = useState([
@@ -142,6 +152,79 @@ function App() {
     {id:3, type:"mission", name:"Complete mission 3", reqs:[], subs:[], reward:[{type:"food", amount:1500, label:"Eat 3 food rations"}], progress:0, turns: 2, participants:[]},
   ])
   
+  
+  
+  
+  const [expeditions, setExpeditions] = useState([
+    /*example {
+    id:0,
+    participants:[1,2],
+    details: "",
+    canCarry: 50 (asegurador) + 20(normal) + 20(normal),
+    currCarry: []
+    bonus: [
+      {type: "materials", bonus:0.3, label: "30% more materials per location"} (stackable)
+    ],
+    progress: 0,
+    duration: 7( in days ) in turns 24*7
+    
+    
+    }*/
+  ])
+  const [locations, setLocations] = useState([
+    /*example
+      
+      this will be found by the amount of the places (10) times (*) 2
+      { id:0,
+        expeditionId: id of expedition,
+        locations:[
+        {
+          direction: random direction from the 3 directions
+          resources: [
+            {type:"material", name:"stick", weight: 10, amount:10}
+          ],
+          
+        },
+        {
+          direction: random direction from the 3 directions
+          resources: [
+            {type:"material", name:"stick", weight: 10, amount:10}
+          ],
+          
+        },
+        ]
+      }
+    */
+  ])
+  
+  const [visited, setVisited] = useState([
+    /*
+    example: only put it here if we weren't able to retrive all the resources of the place
+    {
+      distance: if in one of the days we found one of the locations, the day will be saved here
+      
+      aside from that it will be a copy of the location
+      
+    
+    }
+    
+    */
+  ])
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   let x
   let setX
   
@@ -159,57 +242,54 @@ function App() {
   const [turns, setTurns] = useState(0)
   const [days, setDays] = useState(1)
   
+  const [walls, setWalls] = useState( ["North Wall", "South Wall", "East Wall"].map( (el, index) => {
+        return {
+            id: index,
+            name: el,
+            health: 3,
+            maxHealth: 3,
+            stationedTeam: null,
+            isBeingAttacked: false,
+            get defenseLevel () {
+                if (this.stationedTeam == null) return this.maxHealth
+                const stationedTeam = getTeam(this.stationedTeam)
+                
+                return stationedTeam.powerLevel + this.maxHealth
+            }
+        
+        }
+    }))
+  const [teams, setTeams] = useState([])
   
   
 
-const rewardsFromWork = (missionRewards, stats) => {
-  missionRewards.forEach((value,index,array) => {
-    if (value.type === "strength") {
-      stats = { ... stats, curr_strength: stats.curr_strength + value.amount, }
-    }
-    if (value.type === "inteligence") {
-      stats = { ... stats, curr_inteligence: stats.curr_inteligence + value.amount, }
-    }
-    if (value.type === "spirit") {
-      stats = { ... stats, curr_spirit: stats.curr_spirit + value.amount, }
-    }
-  })
-  
-  return stats
-}
-  
-  
-  
-const processWork = (mission, stats) => {
-  const missionRewards = mission.reward
-  return rewardsFromWork(missionRewards, stats)
-}
-  
-  
-  
-  
-  /*Next turn is used so game keeps moving forward*/
-  function nextTurn () {
-    /*substract 10% of its original value to any number*/
-    const minus1toStats = (stat) => {
-        const tenpercent = stat * 0.1
-        if (stat > 1) {
-            return stat -= tenpercent
-        }
-        return stat
-    }
+  const rewardsFromWork = (missionRewards, stats) => {
+    missionRewards.forEach((value,index,array) => {
+      if (value.type === "strength") {
+        stats = { ... stats, curr_strength: stats.curr_strength + value.amount, }
+      }
+      if (value.type === "inteligence") {
+        stats = { ... stats, curr_inteligence: stats.curr_inteligence + value.amount, }
+      }
+      if (value.type === "spirit") {
+        stats = { ... stats, curr_spirit: stats.curr_spirit + value.amount, }
+      }
+    })
     
-    /*This will replace the current way we are adding stats to
-    the recruits/users */
-    const plusXtoStat = (stat) => {
-        if (stat < 100) {
-            return stat += 1
-        }
-        return stat
-    }
-    
-    
-    
+    return stats
+  }
+  
+  
+  
+  const processWork = (mission, stats) => {
+    const missionRewards = mission.reward
+    return rewardsFromWork(missionRewards, stats)
+  }
+  
+  
+  
+  
+  const processRecruitDirectEvents = () => {
     setRecruits((prev) => {
         /*Iterate through the recruits*/
         return prev.map((recruit) => {
@@ -240,8 +320,224 @@ const processWork = (mission, stats) => {
             stats: changeStatByTurn(stats, turns, reward.type)
             }
         })
-    
     })
+  }
+  
+  
+  
+  
+  const goOnExpedition = () => {
+    
+    if (expeditions.length == 0) return 
+    
+    const newExpeditions = expeditions.map(exp => {
+        const linkedLocations = locations.filter(l => l.expeditionId === exp.id)[0].locations
+        const locationsAmount = linkedLocations.length
+        const foundedIndex = Math.floor(Math.random()*(locationsAmount*2))
+        console.log(foundedIndex, locationsAmount)
+        const founded = foundedIndex < locationsAmount
+        
+        
+        if ( exp.duration <= exp.progress ) exp.comingBack = true
+        
+        if (exp?.comingBack){
+            setModalData(exp)
+            showModal()
+            
+            return {... exp, DELETE:true}
+        }       
+        console.log(founded)
+        if (founded) {
+            console.log("FOUNDED")
+            const foundedLocation = linkedLocations[foundedIndex]
+            console.log(foundedLocation)
+            const resources = foundedLocation.resources
+            const canCarry = exp.canCarry - calcBagWeight(exp.currCarry)
+            const cantCarryAll = foundedLocation.resourcesTotalWeight > canCarry
+            
+            /*move the resources to exp.currCarry before putting them
+            in visited, after that, they have to come back with the resources 
+            
+            so they need an indicator of when they coming back
+            
+            */
+             const moveResources = (expWeightLimit, resources) => {
+              const bag = []
+              let bagsWeight = 0
+              let newResources = [ ... resources]
+              for ( const re of resources ){
+                const calc = bagsWeight + re.weight
+                if (calc >= expWeightLimit){
+                  continue
+                }
+                bagsWeight = calc
+                bag.push({ ... re})
+                newResources = newResources.filter( nre => JSON.stringify(nre) !== JSON.stringify(re))
+              }
+              
+              return [bag, newResources]
+            }
+            
+            const [recoveredResources, oldResources] = moveResources(canCarry, resources)
+            console.log(recoveredResources, oldResources)
+            
+            const eraseLocation = (expeditionIndex, foundedIndex) => {
+//              if (!cantCarryAll && recoveredResources.length < 0) {
+  //              erase location with no resources
+                setLocations(locations.filter(l => {
+//                  if (l.expeditionId === exp.id){
+                  if (l.expeditionId === expeditionIndex){
+                    return {
+                      ... l,
+                      locations: [ ... l.locations.slice(1, foundedIndex)]
+                    }
+                  }
+                  return l                
+                  }))
+//              }
+            }
+            
+             
+            
+            if (cantCarryAll){
+                setVisited([ ... visited, { ... foundedLocation, distance: exp.progress + 1, }])
+                eraseLocation(exp.id, foundedIndex)      
+                return { 
+                  ... exp,
+                  progress: exp.progress + 1, 
+                  currCarry:[ ... exp.currCarry, ... recoveredResources],
+                  comingBack: true,
+                  }
+            } else if (!cantCarryAll && recoveredResources.length > 0)  {
+//            TODO
+//the reason for the exploration not finding anything is because they are not reaching the max value capacity of weight they can carrying
+//there is no function to load the things they found and then keep going
+              eraseLocation(exp.id, foundedIndex)
+              return { 
+                    ... exp,
+                    progress: exp.progress + 1, 
+                    currCarry:[ ... exp.currCarry, ... recoveredResources],
+                  }
+            }
+            return { ... exp, progress: exp.progress + 1}
+//            if you didn't find anything then sum 24(a whole day) to progress
+        } else {
+            return { ... exp, progress: exp.progress + 1}
+        }
+    })
+    setExpeditions([ ... newExpeditions.filter(el => (el?.DELETE == true) ? false : true)])
+  }
+  
+  
+  
+  
+  
+  const defendWalls = () => {
+      
+      setWalls((prev) => {
+        return prev.map(el => {
+          if (el.health <= 0 && (el.messageSent === undefined || el.messageSent === false)){
+            setModalMessage(<h2>{el.name} has been destroyed, the bandints have taken some of your stuff, repair as fast as possible!</h2>)
+            setIsModalOpen(true)
+            return { ... el, messageSent: true, attacked: false, attacker: null }
+          }
+          const isAttackedState = (wall) => {
+              if (wall?.attacked === true) return {}
+              
+              const attacked =  Math.floor(Math.random()*2) === 1 ? true : false // if it's 1 then it's being attacked
+              const attacker = attacked ? {
+                powerLevel: Math.floor(Math.random()*27) ,/*a random level between wall's defense + 2 and wall's defense -2   
+                obviously without surpassing the 27 max level cap*/
+                health: 10,
+                maxHealth: 10,
+              } : null
+              
+              return {attacked: attacked, attacker: attacker}
+              
+            }
+          
+          const responseToAttackedState = (wall) => {
+//            first we have the changes
+            let changes = {}
+            
+//            checking if the wall is being attacked
+            if (
+                
+                wall?.attacked === false || wall.attacked === undefined ||
+                wall?.attacker === null || wall.attacker === undefined
+                
+              ) return {}
+            
+            
+//            setting the team and attacker as consts
+            const attacker = wall.attacker
+            const team = teams.find(el => el.id === wall.stationedTeam)
+            
+            
+//            checking if the attacker is still alive
+            if (attacker?.health <= 0 || attacker === null){
+              changes = {... changes, attacked: false}
+            }
+            
+//            if there is not team, protecting the wall, the wall will take damage directly
+            if (team === undefined && (attacker !== null || attacker !== undefined)) {
+              changes = {
+                ... changes,
+//                if the attacker is stronger than the wall
+                health: ( wall.defenseLevel <= attacker.powerLevel ) ? Math.max(0, wall.health - 1) : wall.health,
+//                because the item is undefined, we are gonna set the stationedTeam to null
+                stationedTeam: null,
+              }
+//              if team is defined and its not weaker than the attacker
+            } else if (attacker.powerLevel < team.powerLevel){
+                changes = {
+                  ... changes,
+                  attacker: (attacker.health > 0) ? {
+                    ... attacker,
+                    health: Math.max(0, attacker.health - 1)
+                  } : null,
+                }
+//              if the enemy stronger
+              } else {
+                if (team.health <= 0) {
+                  changes = { 
+                    ... changes, 
+                    health: ( wall.defenseLevel <= attacker.powerLevel ) ? Math.max(0, wall.health - 1) : wall.health,
+                  } 
+                } else {
+                  damageTaken(team, 1, setRecruits)
+                }
+              }
+            
+            return changes
+          }
+            
+            
+          
+          return { 
+            ... el,
+            ... isAttackedState(el),
+            ... responseToAttackedState(el),
+          }
+        })
+      })
+      
+  }
+  
+  
+  
+  
+  
+  const processRecruitIndirectEvents = () => {
+    defendWalls()
+  }
+  
+  
+  /*Next turn is used so game keeps moving forward*/
+  function nextTurn () {
+    processRecruitDirectEvents()
+    processRecruitIndirectEvents()
+    
     
     const hoursAday = 23
     
@@ -267,9 +563,16 @@ const processWork = (mission, stats) => {
         return prev += 1
       })
     }
+  }
+  
+  
+  const displayResourceCard = (resources) => {
+    let cards = []
+    Object.keys(resources).forEach((name) => {
+      cards.push(<GameCard title={name} amount={resources[name]}/>)
+    })
     
-    
-    
+    return cards
   }
 
 
@@ -278,7 +581,7 @@ const processWork = (mission, stats) => {
 
     <>
     
-      {/* 
+    {/* 
       pass the missions/trainings to the App.jsx page
       then pass the operations of both lists to the respective
       pages (missions => missios and trainings to => trainings) 
@@ -291,23 +594,42 @@ const processWork = (mission, stats) => {
       accordingly - make a system for that.
     */}
     
-      <Header days={days} dayName={daysOfWeek[dayindex]} turns={turns} nextTurn={nextTurn} disableSelect={disableSelect}/>
-      
-      <div style={{
-            display: "flex", 
-            flexDirection:"row", 
-            flex: 1,
-        }}>
+          <Header days={days} dayName={daysOfWeek[dayindex]} turns={turns} nextTurn={nextTurn} disableSelect={disableSelect}/>
+          
+          <div style={{
+                display: "flex", 
+                flexDirection:"row", 
+                flex: 1,
+            }}>
             <SideMenu/>
-            <Content operations={{
+            <div>
+              <Space>
+                <GameCard title="People" amount={recruits.length}/>
+                  {displayResourceCard(resources)}
+                <GameCard title="Happiness" amount="0%"/>
+              </Space>
+              <Content operations={{
                 pageOperations: [x,setX],
                 recruitsOperations: [recruits,setRecruits],
                 timeOperations: [daysOfWeek[dayindex], days, turns], 
                 schedules: [schedule1, schedule2],
                 resourcesOperations: [resources, setResources],
-                disabledOperations: [disableSelect, setDisableSelect]
+                disabledOperations: [disableSelect, setDisableSelect],
+                expeditionOperations: [expeditions, setExpeditions],
+                locationsOperations: [locations, setLocations],
+                visitedOperations: [visited, setVisited],
+                modalOpenOperations: [isModalOpen, setIsModalOpen],
+                modalMessageOperations: [modalMessage, setModalMessage],
+                wallsOperations: [walls, setWalls],
+                teamsOperations: [teams, setTeams],
+                
                 }}/>
-        </div>
+            </div>
+            {/*MESSAGE MODAL*/}
+            <Modal title="Alert Message" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+              {modalMessage}
+            </Modal>
+      </div>
     </>
   )
 }
@@ -333,8 +655,9 @@ function SideMenu() {
             {label: "Training", key:"/Training", icon: <ThunderboltFilled/>},
             {label: "Create Schedule", key:"/Create_Schedule", icon: <OrderedListOutlined />, disabled: true},
             {label: "School (Classes)", key:"/Classes", icon: <RadarChartOutlined />},
-            {label: "Exploration", key:"/Exploration", icon: <CompassOutlined />},
             {label: "Walls", key:"/Walls", icon: <AppstoreAddOutlined />},
+            {label: "Exploration", key:"/Exploration", icon: <CompassOutlined />},
+
             
             {label: "Buildings (WIP)", key:"/Buildings", icon: <BuildOutlined />, disabled:true},
 //            {label: "Food", key:"/Food", icon: <ThunderboltFilled/>},

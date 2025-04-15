@@ -121,70 +121,9 @@ export const Exploration = ({operations}) => {
   const [recruits, setRecruits] = operations.recruitsOperations 
   const [missions, setMissions] = operations.pageOperations
   const timeOperations = operations.timeOperations
-  const [expeditions, setExpeditions] = useState([
-    /*example {
-    id:0,
-    participants:[1,2],
-    details: "",
-    canCarry: 50 (asegurador) + 20(normal) + 20(normal),
-    currCarry: []
-    bonus: [
-      {type: "materials", bonus:0.3, label: "30% more materials per location"} (stackable)
-    ],
-    progress: 0,
-    duration: 7( in days ) in turns 24*7
-    
-    
-    }*/
-  ])
-  
-  
-  const [locations, setLocations] = useState([
-    /*example
-      
-      this will be found by the amount of the places (10) times (*) 2
-      { id:0,
-        expeditionId: id of expedition,
-        locations:[
-        {
-          direction: random direction from the 3 directions
-          resources: [
-            {type:"material", name:"stick", weight: 10, amount:10}
-          ],
-          
-        },
-        {
-          direction: random direction from the 3 directions
-          resources: [
-            {type:"material", name:"stick", weight: 10, amount:10}
-          ],
-          
-        },
-        ]
-      }
-    */
-  ])
-  
-  const [visited, setVisited] = useState([
-    /*
-    example: only put it here if we weren't able to retrive all the resources of the place
-    {
-      distance: if in one of the days we found one of the locations, the day will be saved here
-      
-      aside from that it will be a copy of the location
-      
-    
-    }
-    
-    */
-  ])
-  
-  
-  
-  
-  const [inExpedition, setInExpedition] = useState([])
-  
-  
+  const [expeditions, setExpeditions] = operations.expeditionOperations
+  const [locations, setLocations] = operations.locationsOperations
+  const [visited, setVisited] = operations.visitedOperations
   const calcBagWeight = (bag) => {
     let weight = 0
     for ( const re of bag ){
@@ -192,11 +131,8 @@ export const Exploration = ({operations}) => {
     }
     return weight
   }
-  
-  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState({})
-  
   const showModal = () => {
     setIsModalOpen(true);
   };
@@ -206,127 +142,6 @@ export const Exploration = ({operations}) => {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  const goOnExpedition = () => {
-    
-    if (expeditions.length == 0) return 
-    
-    const newExpeditions = expeditions.map(exp => {
-        const linkedLocations = locations.filter(l => l.expeditionId === exp.id)[0].locations
-        const locationsAmount = linkedLocations.length
-        const foundedIndex = Math.floor(Math.random()*(locationsAmount*2))
-        console.log(foundedIndex, locationsAmount)
-        const founded = foundedIndex < locationsAmount
-        
-        
-        if ( exp.duration <= exp.progress ) exp.comingBack = true
-        
-        if (exp?.comingBack){
-            setModalData(exp)
-            showModal()
-            
-            return {... exp, DELETE:true}
-        }       
-        console.log(founded)
-        if (founded) {
-            console.log("FOUNDED")
-            const foundedLocation = linkedLocations[foundedIndex]
-            console.log(foundedLocation)
-            const resources = foundedLocation.resources
-            const canCarry = exp.canCarry - calcBagWeight(exp.currCarry)
-            const cantCarryAll = foundedLocation.resourcesTotalWeight > canCarry
-            
-            /*move the resources to exp.currCarry before putting them
-            in visited, after that, they have to come back with the resources 
-            
-            so they need an indicator of when they coming back
-            
-            */
-             const moveResources = (expWeightLimit, resources) => {
-              const bag = []
-              let bagsWeight = 0
-              let newResources = [ ... resources]
-              for ( const re of resources ){
-                const calc = bagsWeight + re.weight
-                if (calc >= expWeightLimit){
-                  continue
-                }
-                bagsWeight = calc
-                bag.push({ ... re})
-                newResources = newResources.filter( nre => JSON.stringify(nre) !== JSON.stringify(re))
-              }
-              
-              return [bag, newResources]
-            }
-            
-            const [recoveredResources, oldResources] = moveResources(canCarry, resources)
-            console.log(recoveredResources, oldResources)
-            
-            const eraseLocation = (expeditionIndex, foundedIndex) => {
-//              if (!cantCarryAll && recoveredResources.length < 0) {
-  //              erase location with no resources
-                setLocations(locations.filter(l => {
-//                  if (l.expeditionId === exp.id){
-                  if (l.expeditionId === expeditionIndex){
-                    return {
-                      ... l,
-                      locations: [ ... l.locations.slice(1, foundedIndex)]
-                    }
-                  }
-                  return l                
-                  }))
-//              }
-            }
-            
-             
-            
-            if (cantCarryAll){
-                setVisited([ ... visited, { ... foundedLocation, distance: exp.progress + 1, }])
-                eraseLocation(exp.id, foundedIndex)      
-                return { 
-                  ... exp,
-                  progress: exp.progress + 1, 
-                  currCarry:[ ... exp.currCarry, ... recoveredResources],
-                  comingBack: true,
-                  }
-            } else if (!cantCarryAll && recoveredResources.length > 0)  {
-//            TODO
-//the reason for the exploration not finding anything is because they are not reaching the max value capacity of weight they can carrying
-//there is no function to load the things they found and then keep going
-              eraseLocation(exp.id, foundedIndex)
-              return { 
-                    ... exp,
-                    progress: exp.progress + 1, 
-                    currCarry:[ ... exp.currCarry, ... recoveredResources],
-                  }
-            }
-            
-            return { ... exp, progress: exp.progress + 1}
-//            if you didn't find anything then sum 24(a whole day) to progress
-        } else {
-            return { ... exp, progress: exp.progress + 1}
-        
-        }
-     
-      
-    })
-    
-    
-    
-    setExpeditions([ ... newExpeditions.filter(el => (el?.DELETE == true) ? false : true)])
-    
-  }
-  
   
   const ShowExpeditionResults = () => {
     if (!modalData.currCarry) return <></>
@@ -358,17 +173,10 @@ export const Exploration = ({operations}) => {
 
 
   return (<>
-    <Button onClick={goOnExpedition}>Go On Expedition</Button>
     <div>
       <Space>
         <ExplorationForm 
-        operations={[missions, setMissions, recruits, setRecruits, timeOperations]}
-        expeditions={expeditions}
-        setExpeditions={setExpeditions}
-        inExpedition={inExpedition}
-        setInExpedition={setInExpedition}
-        locations={locations}
-        setLocations={setLocations}
+        operations={operations}
         />
       </Space>
       <Space>

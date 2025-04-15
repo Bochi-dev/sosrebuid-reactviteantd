@@ -201,3 +201,30 @@ export const changeStatByTurn = (stats, turns, rewardType) => {
 or make a new variable inside the stats that counts it
 */
 
+export const damageTaken = (team, value, setRecruits) => {
+  const consolelist = []
+  setRecruits(prev => prev.map(el => {
+    if (!team.recruitIds.includes(el.id)) return el;
+    console.log("damage: ", value)
+    
+    consolelist.push({ ...el, stats: {... el.stats, health: Math.max(0, el.health - value)}})
+    
+    return { ...el, stats: {... el.stats, health: Math.max(0, el.stats.health - value)}}; // Prevent negative health
+  }));
+  
+  console.log(consolelist)
+  
+  
+  
+  
+};
+
+export const calculateTeamHealth = (team, recruits) => {
+  let teamsHealth = team.recruitIds
+    .map(id => recruits.find(r => r.id === id).stats.health || 0)
+    .reduce((sum, health) => sum + health, 0);
+
+  const teamsMaxHealth = team.maxHealth * team.recruitIds.length;
+  return (teamsHealth / teamsMaxHealth) * team.maxHealth;
+};
+

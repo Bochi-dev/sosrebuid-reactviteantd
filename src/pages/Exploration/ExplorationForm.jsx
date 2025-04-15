@@ -2,47 +2,20 @@ import React, { useState } from 'react';
 import { Space, Divider, List, Typography } from "antd";
 import {
   Button,
-  Cascader,
-  DatePicker,
   Form,
   Input,
   InputNumber,
-  Radio,
   Select,
-  Switch,
-  TreeSelect,
+  Tooltip,
+  Modal,
 } from 'antd';
-
+import { ClassesAvatars, NotAvailableMessage } from "../../components"
 
 
 const materials = [
   { type: "material", name: "wood", weight: 5, amount: 10 },
   { type: "material", name: "food", weight: 10, amount: 10 },
   { type: "material", name: "people", weight: 0, amount: 1 },
-/*  { type: "material", name: "rock", weight: 15, amount: 8 },
-  { type: "material", name: "metal scrap", weight: 20, amount: 5 },
-  { type: "material", name: "plastic bottle", weight: 5, amount: 12 },
-  { type: "material", name: "wire", weight: 8, amount: 7 },
-  { type: "material", name: "cloth", weight: 3, amount: 20 },
-  { type: "material", name: "glass shard", weight: 6, amount: 10 },
-  { type: "material", name: "rubber tube", weight: 12, amount: 4 },
-  { type: "material", name: "charcoal", weight: 9, amount: 15 },
-  { type: "material", name: "bone", weight: 14, amount: 6 },
-  { type: "material", name: "concrete chunk", weight: 25, amount: 3 },
-  { type: "material", name: "leather scrap", weight: 7, amount: 10 },
-  { type: "material", name: "paper", weight: 2, amount: 30 },
-  { type: "material", name: "copper pipe", weight: 18, amount: 5 },
-  { type: "material", name: "rusted nail", weight: 4, amount: 20 },
-  { type: "material", name: "wood plank", weight: 22, amount: 4 },
-  { type: "material", name: "rope", weight: 10, amount: 9 },
-  { type: "material", name: "tarpaulin", weight: 16, amount: 6 },
-  { type: "material", name: "broken circuit board", weight: 5, amount: 7 },
-  { type: "material", name: "battery cell", weight: 11, amount: 5 },
-  { type: "material", name: "scrap cloth", weight: 3, amount: 25 },
-  { type: "material", name: "aluminum can", weight: 2, amount: 15 },
-  { type: "material", name: "brick", weight: 30, amount: 2 },
-  { type: "material", name: "shattered mirror", weight: 6, amount: 8 },
-  { type: "material", name: "old tire", weight: 40, amount: 1 }*/
 ];
 
 
@@ -51,18 +24,42 @@ const materials = [
 
 
 
-export const ExplorationForm = ({operations, expeditions, setExpeditions, locations, setLocations}) => {
+export const ExplorationForm = ({operations}) => {
     
-    const [missions, setMissions, recruits, setRecruits, timeOperations] = operations
-  
+    const [recruits, setRecruits] = operations.recruitsOperations
+    const [expeditions, setExpeditions] = operations.expeditionOperations
+    const [locations, setLocations] = operations.locationsOperations
+    const [isModalOpen, setIsModalOpen] = operations.modalOpenOperations
+    const [modalMessage, setModalMessage] = operations.modalMessageOperations
+    const [data, setData] = useState([
+        [],
+        [],
+        []
+    ])
     
+    const checkIfPresecurer = (el) => {
+      const classes = el.classes
+      return (classes.filter(el => (el[0] !== undefined) ? (el[0].name === "presecurer") : false).length > 0) 
+    }
     
     const onFinish = (values) => {
         const participants = values.participants
+        console.log(participants)
+        if (participants === undefined || participants.length === 0){
+            setIsModalOpen(true)
+            setModalMessage("Necesitas al menos un partipante para ir de exploracion")
+            return
+        
+        }
+//        check if there is AT LEAST one presecurer
+        if (participants.map(el => (recruits.find(ex => ex.id === el))).filter(checkIfPresecurer).length === 0){
+            setIsModalOpen(true)
+            setModalMessage("No puedes ir de exploracion sin un presecurer")
+            return
+        }
+        
         const directions = values.directions
         const daysLong = values.daysLong
-      
-      
         const filterParticipant = (id) => {
             return recruits.filter(tr => tr.id === id)[0]
         }
@@ -72,7 +69,6 @@ export const ExplorationForm = ({operations, expeditions, setExpeditions, locati
             const participant = filterParticipant(id)
             participant.class.forEach(c => conditions.push((c.length > 0) ? c[0].name === clss : false))
             return conditions.includes(true) 
-            
         }
       
         const calculateWeight = (ids) => {
@@ -197,37 +193,8 @@ export const ExplorationForm = ({operations, expeditions, setExpeditions, locati
       console.log('Failed:', errorInfo);
     };
 
-
-
-
-
-
-
-
-
-
-
-    /*I need a list of objects called sites
-  
-  random direction (north, south, east)
-  random names (camp site, factory, abandoned site)
-  random objects : {type: "material", name:"stick", label: "Stick", weight: 5}
-  random chance to find it {chance: 1} that will work based on the amount of 
-  places there is available: var findingChance = Math.floor(Math.random()*sites.length)
-  
-  */
-
-
-
   
   
-  const [data, setData] = useState([
-  'Racing car sprays burning fuel into crowd.',
-  'Japanese princess to wed commoner.',
-  'Australian walks 100km after outback crash.',
-  'Man charged over missing wedding girl.',
-  'Los Angeles battles huge wildfires.',
-    ])
   
   
   const RecruitClasses = ({classesList}) => {
@@ -236,16 +203,19 @@ export const ExplorationForm = ({operations, expeditions, setExpeditions, locati
   
   
   
+  const checkIfRecruitAlreadyInExpedition = (recruit) => {
+    let inExpeditions = new Set([])
+    expeditions.forEach(e => {
+        inExpeditions = new Set(... inExpeditions, ... e.participants)
+    })
+    return inExpeditions.has(recruit.id)
+  }
   
-  
-  
-  
+  const checkIfRecruitHasAJob = (recruit) => {
+    return (recruit.curr_actions === null)
+  }
   
   return (<>
-  
-    {recruits.map((tr, index) => <div key={index}> <span>{tr.name}</span> <RecruitClasses classesList={tr.classes} /></div>)}
-  
-  
     <h4>Exploration Form</h4>
     <Form
       name="basic"
@@ -262,64 +232,44 @@ export const ExplorationForm = ({operations, expeditions, setExpeditions, locati
       
       <Form.Item label="Participants" name="participants">
         <Select
-          
           mode="multiple"
           style={{
             width: '100%',
           }}
           placeholder="Please select"
-          onChange={(value) => {
-            
-            const newData = recruits.map(r => {
-                const classes = []
-                
-                r.class.forEach((slot) => {
-                    if (slot.length === 0){
-                        return
-                    }
-                    
-                    const inside = slot[0]
-                    
-                    if (inside) {
-                        
-                    }
-                    
-                    
-                })
-                
-                
-            })
-            
-            
-          }}
           options={recruits.map((r) => {
 //            Disabled the options of recruits that are already in a expedition
             return {
               label: r.name,
               value: r.id,
+              curr_actions: r.curr_actions,
+              classes: r.classes,
+              disabled: (r.curr_actions !== null)
             }
           
           })}
+          optionRender={option => (
+            <Space>
+              {option.label}
+              <ClassesAvatars classes={option.data.classes}/>
+              <NotAvailableMessage curr_actions={option.data.curr_actions}/>
+            </Space>
+          )}
         />
       
       </Form.Item>
       
-      
-      
-      
       <Form.Item label="Directions" name="directions">
-        <Select  options={[
-        
+        <Select  
+        defaultValue={"north"}
+        options={[
         {id:"north", value:"North"},
         {id:"south", value:"South"},
         {id:"east", value:"East"},
         ]}/>
       </Form.Item>
-      
-      
-      
       <Form.Item label="DaysLong" name="daysLong">
-        <InputNumber />
+        <InputNumber min={1} max={99} value={1}/>
       </Form.Item>
       
       <Form.Item label={null}>
@@ -333,10 +283,7 @@ export const ExplorationForm = ({operations, expeditions, setExpeditions, locati
             </List.Item>
           )}
         />
-      
       </Form.Item>
-      
-      
       <Form.Item label={null}>
         <Button  htmlType="submit" >Depart</Button>
       </Form.Item>

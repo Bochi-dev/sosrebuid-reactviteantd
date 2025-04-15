@@ -29,8 +29,8 @@ export const schedule1 = {
     {"type":"training", "turn": 19, "amount": 1, "name":"Training"},
     {"type":"training", "turn": 20, "amount": 1, "name":"Training"},   
     {"type":"training", "turn": 21, "amount": 1, "name":"Training"},
-    {"type":"calories", "turn": 22, "amount": 500, "name":"Eat"},
-    {"type":"calories", "turn": 23, "amount": 500, "name":"Eat"},                  
+    {"type":"training", "turn": 22, "amount": 1, "name":"Training"},
+    {"type":"calories", "turn": 23, "amount": 500, "name":"Eat"},
 ]
 
 }
