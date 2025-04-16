@@ -459,7 +459,6 @@ function App() {
           const responseToAttackedState = (wall) => {
 //            first we have the changes
             let changes = {}
-            
 //            checking if the wall is being attacked
             if (
                 
@@ -503,7 +502,8 @@ function App() {
                   changes = { 
                     ... changes, 
                     health: ( wall.defenseLevel <= attacker.powerLevel ) ? Math.max(0, wall.health - 1) : wall.health,
-                  } 
+                  }
+                  
                 } else {
                   damageTaken(team, 1, setRecruits)
                 }

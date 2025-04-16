@@ -2,17 +2,22 @@ import { Button, Checkbox, Form, Input, Select, Space } from 'antd';
 import { useState } from "react"
 import { calculateTeamHealth } from "../../global"
 
-export const TeamsForm = ({teams, setTeams, recruits, setRecruits}) => {
-    const [selectedValue, setSelectedValue] = useState([]);
-    const onChange = (values) => {
-        console.log("values: ", values)
-        setSelectedValue(values)
-    }
+export const TeamsForm = ({operations}) => {
+    const [isModalOpen, setIsModalOpen] = operations.modalOpenOperations
+    const [modalMessage, setModalMessage] = operations.modalMessageOperations
+    const [recruits, setRecruits] = operations.recruitsOperations
+    const [teams, setTeams] = operations.teamsOperations
+    const includesAny = (arr, values) => values.some(v => arr.includes(v));
     const onFinish = values => {
-      console.log('Success:', values, selectedValue);
-      selectedValue
-      setSelectedValue([]);
       const members = values.recruits
+      if (includesAny(inTeams(), members)){
+        setIsModalOpen(true)
+        setModalMessage(<h2>
+            People of a team cannot be in another team
+        </h2>)
+        return 
+      }
+      
       const name = recruits.filter( el => el.id === members[0] )[0].name + "'s Team"
 //      console.log(name)
       setTeams([
@@ -21,7 +26,6 @@ export const TeamsForm = ({teams, setTeams, recruits, setRecruits}) => {
             id: Math.floor(Math.random()*500),
             name: name,
             recruitIds: members,
-            maxHealth:10,
             get recruits(){
               return this.recruitIds.map( el => {
                 return recruits.find( er => er.id === el )
@@ -34,7 +38,7 @@ export const TeamsForm = ({teams, setTeams, recruits, setRecruits}) => {
                   total += recruitsLevel
               }
               return total
-            } 
+            },
           }
         ])
         
@@ -83,8 +87,6 @@ export const TeamsForm = ({teams, setTeams, recruits, setRecruits}) => {
               placeholder="Please select"
               maxCount={3}
               options={options}
-              onChange={onChange}
-              defaultValue={selectedValue}
               optionRender={option => {
                 return (
                     <Space>

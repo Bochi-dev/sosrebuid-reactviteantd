@@ -54,7 +54,7 @@ export const Walls = ({operations}) => {
               </Flex>
           </Col>
           <Col span={12}>
-            <Teams  teams={teams} setTeams={setTeams} recruits={recruits} setRecruits={setRecruits}/>
+            <Teams operations={operations}/>
           </Col>
       </Row>
     </>)
