@@ -25,7 +25,6 @@ const materials = [
 
 
 export const ExplorationForm = ({operations}) => {
-    
     const [recruits, setRecruits] = operations.recruitsOperations
     const [expeditions, setExpeditions] = operations.expeditionOperations
     const [locations, setLocations] = operations.locationsOperations
@@ -44,12 +43,10 @@ export const ExplorationForm = ({operations}) => {
     
     const onFinish = (values) => {
         const participants = values.participants
-        console.log(participants)
         if (participants === undefined || participants.length === 0){
             setIsModalOpen(true)
             setModalMessage("Necesitas al menos un partipante para ir de exploracion")
             return
-        
         }
 //        check if there is AT LEAST one presecurer
         if (participants.map(el => (recruits.find(ex => ex.id === el))).filter(checkIfPresecurer).length === 0){
@@ -67,7 +64,7 @@ export const ExplorationForm = ({operations}) => {
         const checkIfParticipantClass = (id, clss) => {
             const conditions = []
             const participant = filterParticipant(id)
-            participant.class.forEach(c => conditions.push((c.length > 0) ? c[0].name === clss : false))
+            participant.classes.forEach(c => conditions.push((c.length > 0) ? c[0].name === clss : false))
             return conditions.includes(true) 
         }
       
@@ -181,10 +178,7 @@ export const ExplorationForm = ({operations}) => {
                 },
               ]*/
             }
-        console.log("locations: ", locations, locationSet)
         setLocations([... locations, locationSet])
-      
-      
       
     };
     
@@ -192,27 +186,9 @@ export const ExplorationForm = ({operations}) => {
     const onFinishFailed = (errorInfo) => {
       console.log('Failed:', errorInfo);
     };
-
-  
-  
-  
   
   const RecruitClasses = ({classesList}) => {
     return classesList.map((c, index) => <p>({index + 1}) - {(c.length !== 0) ? c[0].label : "EMPTY SLOT" }</p>)
-  }
-  
-  
-  
-  const checkIfRecruitAlreadyInExpedition = (recruit) => {
-    let inExpeditions = new Set([])
-    expeditions.forEach(e => {
-        inExpeditions = new Set(... inExpeditions, ... e.participants)
-    })
-    return inExpeditions.has(recruit.id)
-  }
-  
-  const checkIfRecruitHasAJob = (recruit) => {
-    return (recruit.curr_actions === null)
   }
   
   return (<>
@@ -244,7 +220,7 @@ export const ExplorationForm = ({operations}) => {
               value: r.id,
               curr_actions: r.curr_actions,
               classes: r.classes,
-              disabled: (r.curr_actions !== null)
+              disabled: false
             }
           
           })}
@@ -263,10 +239,11 @@ export const ExplorationForm = ({operations}) => {
         <Select  
         defaultValue={"north"}
         options={[
-        {id:"north", value:"North"},
-        {id:"south", value:"South"},
-        {id:"east", value:"East"},
-        ]}/>
+            {id:"north", value:"North"},
+            {id:"south", value:"South"},
+            {id:"east", value:"East"},
+        ]}
+        />
       </Form.Item>
       <Form.Item label="DaysLong" name="daysLong">
         <InputNumber min={1} max={99} value={1}/>

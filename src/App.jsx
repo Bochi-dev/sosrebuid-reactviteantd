@@ -11,7 +11,8 @@ RadarChartOutlined,
 CompassOutlined,
 TableOutlined,
 AppstoreAddOutlined,
-ExclamationCircleFilled} from "@ant-design/icons"
+ExclamationCircleFilled,
+WarningOutlined} from "@ant-design/icons"
 import { useState } from 'react'
 import { IconText, GameCard } from "./components"
 import { changeStatByTurn, 
@@ -23,7 +24,10 @@ schedule2,
 RECRUITS,
 HOURS, 
 proccessEducation,
-damageTaken} from "./global"
+damageTaken,
+isTeamDead,
+removeRandomResources,
+isWallUnderAttack} from "./global"
 import { Route, Routes, useNavigate, useLocation } from "react-router-dom"
 import { Main,
 Missions,
@@ -37,9 +41,33 @@ Buildings,
 Classes,
 Exploration,
 Walls} from "./pages"
+
+
+import './css/SideMenu.css'
+
+
+
 const daysOfWeek = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
 
+const baseMenuItems = [
+            {label: "Home", key:"/", icon: <HomeOutlined/>},
+            {label: "Missions", key:"/Missions", icon: <ProductFilled/>},
+            {label: "Training", key:"/Training", icon: <ThunderboltFilled/>},
+            {label: "Create Schedule", key:"/Create_Schedule", icon: <OrderedListOutlined />, disabled: true},
+            {label: "School (Classes)", key:"/Classes", icon: <RadarChartOutlined />},
+            {label: "Walls", key:"/Walls", icon: <AppstoreAddOutlined />},
+            {label: "Exploration", key:"/Exploration", icon: <CompassOutlined />},
 
+            
+            {label: "Buildings (WIP)", key:"/Buildings", icon: <BuildOutlined />, disabled:true},
+//            {label: "Food", key:"/Food", icon: <ThunderboltFilled/>},
+//            {label: "Calories", key:"/Calories", icon: <ThunderboltFilled/>},
+//            {label: "BmiCalc", key:"/BmiCalc", icon: <ThunderboltFilled/>},
+//            {label: "Stress", key:"/Stress", icon: <ThunderboltFilled/>},
+//            {label: "Todo", key:"/Todo", icon: <SignalFilled/>},
+            
+            
+        ]
 
 //the main app, here is managed the different routes of the app
 function App() {
@@ -55,11 +83,21 @@ function App() {
   const schedules = [schedule1, schedule2]
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("")
+  let onHandleOk = null
+  const setOnHandleOk = (func) => {
+    onHandleOk = func
+  } 
+  
+  
   const handleOk = () => {
     setIsModalOpen(false);
+    if (typeof onHandleOk === "function"){
+      onHandleOk()
+    }
   };
   const handleCancel = () => {
     setIsModalOpen(false);
+    
   };
 
   
@@ -249,7 +287,6 @@ function App() {
             health: 3,
             maxHealth: 3,
             stationedTeam: null,
-            isBeingAttacked: false,
             get defenseLevel () {
                 if (this.stationedTeam == null) return this.maxHealth
                 const stationedTeam = getTeam(this.stationedTeam)
@@ -434,12 +471,25 @@ function App() {
   
   const defendWalls = () => {
       
-      setWalls((prev) => {
-        return prev.map(el => {
-          if (el.health <= 0 && (el.messageSent === undefined || el.messageSent === false)){
-            setModalMessage(<h2>{el.name} has been destroyed, the bandints have taken some of your stuff, repair as fast as possible!</h2>)
-            setIsModalOpen(true)
-            return { ... el, messageSent: true, attacked: false, attacker: null }
+      setWalls((prev) => prev.map(el => {
+          if (el.health <= 0 && el.attacked === true) {
+              if (el.messageSent === undefined || el.messageSent === false){
+                setModalMessage(<h2>{el.name} has been destroyed, the bandints have taken some of your stuff, repair as fast as possible!</h2>)
+                setIsModalOpen(true)
+                removeRandomResources(resources, setResources)
+                return { ... el, messageSent: true, attacked: false, attacker: null }
+              } else {
+                const stationedTeam = teams.find(te => te.id === el.stationedTeam)
+                if (stationedTeam === undefined || stationedTeam === null){ 
+                  setModalMessage(<h2>Since {el.name}, is unprotected, the bandits were free to take whatever they wanted from your base (hint: assign a team to the wall until you can repair it)</h2>)
+                } else if (isTeamDead(stationedTeam,recruits)){
+                  setModalMessage(<h2>Since {el.name}, and {stationedTeam.name} has been defeated, the bandits were free to take whatever they wanted from your base (hint: heal your team or replace it to make until you can repair the wall)</h2>)
+                }
+                setIsModalOpen(true)
+                removeRandomResources(resources, setResources)
+                return { ... el, attacked: false, attacker: null }
+              } 
+              
           }
           const isAttackedState = (wall) => {
               if (wall?.attacked === true) return {}
@@ -520,7 +570,7 @@ function App() {
             ... responseToAttackedState(el),
           }
         })
-      })
+      )
       
   }
   
@@ -574,8 +624,7 @@ function App() {
     
     return cards
   }
-
-
+  
 
   return (
 
@@ -601,7 +650,7 @@ function App() {
                 flexDirection:"row", 
                 flex: 1,
             }}>
-            <SideMenu/>
+            <SideMenu walls={walls}/>
             <div>
               <Space>
                 <GameCard title="People" amount={recruits.length}/>
@@ -622,7 +671,7 @@ function App() {
                 modalMessageOperations: [modalMessage, setModalMessage],
                 wallsOperations: [walls, setWalls],
                 teamsOperations: [teams, setTeams],
-                
+                setOnHandleOk: setOnHandleOk,
                 }}/>
             </div>
             {/*MESSAGE MODAL*/}
@@ -634,40 +683,41 @@ function App() {
   )
 }
 
-function SideMenu() {
+function SideMenu({ walls }) {
   const navigate = useNavigate()
+  const menuItems = baseMenuItems.map(item => {
+    // Check if this is the "Walls" item and if any wall is under attack
+    if (item.key === "/Walls" && walls.some(el => el.attacked)) {
+        console.log("hello from sidemenu")
+        // Return a NEW item object with added styling properties
+        return {
+            ...item, // Copy existing properties (label, key, icon, etc.)
+            // Option 1 (Recommended): Add a className and define styling in CSS
+//            className: 'menu-item-under-attack',
+            // Option 2 (Simple): Add inline style (might require !important in CSS to override Antd defaults)
+            // style: { color: 'red' }, // Might not work directly due to Antd styles
+            danger: true,
+            icon: <WarningOutlined />
+        };
+    }
+    // Return the item unchanged if it's not the "Walls" item or no wall is under attack
+    return item;
+  });
+  
+  
+  
   return (
     <div style={{display: "flex"}}>
         <Menu
         onClick={({key}) => {
             if (key === "signout") {
 //                TODO, sign out feature here"
-            
             } else {
              navigate(key)
             }
-        
         }} 
         defaultSelectedKeys={[window.location.pathname]}
-        items={[
-            {label: "Home", key:"/", icon: <HomeOutlined/>},
-            {label: "Missions", key:"/Missions", icon: <ProductFilled/>},
-            {label: "Training", key:"/Training", icon: <ThunderboltFilled/>},
-            {label: "Create Schedule", key:"/Create_Schedule", icon: <OrderedListOutlined />, disabled: true},
-            {label: "School (Classes)", key:"/Classes", icon: <RadarChartOutlined />},
-            {label: "Walls", key:"/Walls", icon: <AppstoreAddOutlined />},
-            {label: "Exploration", key:"/Exploration", icon: <CompassOutlined />},
-
-            
-            {label: "Buildings (WIP)", key:"/Buildings", icon: <BuildOutlined />, disabled:true},
-//            {label: "Food", key:"/Food", icon: <ThunderboltFilled/>},
-//            {label: "Calories", key:"/Calories", icon: <ThunderboltFilled/>},
-//            {label: "BmiCalc", key:"/BmiCalc", icon: <ThunderboltFilled/>},
-//            {label: "Stress", key:"/Stress", icon: <ThunderboltFilled/>},
-//            {label: "Todo", key:"/Todo", icon: <SignalFilled/>},
-            
-            
-        ]}>
+        items={menuItems}>
             
         </Menu>
         
@@ -720,7 +770,6 @@ function Header({days, dayName, turns, nextTurn, disableSelect}) {
 function Content({operations}) {
     return <div style={{padding:15}}>
         <Routes>
-            
             <Route 
                 path="/" 
                 element={<Main operations={operations}/>}

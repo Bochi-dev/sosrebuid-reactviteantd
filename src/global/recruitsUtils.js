@@ -43,7 +43,7 @@ const classes = [
 
 
 
-export const NUMBEROFRECRUITS = 6
+export const NUMBEROFRECRUITS = 9
 
 const getRandoIndexOfList = (list) => Math.floor(Math.random()*list.length)
 const generateRandomRecruits = amount => {
@@ -165,4 +165,40 @@ export const proccessEducation = (recruit) => {
     }
   }
 }
+
+/**
+* Checks if a recruit is available (not in a team, not in an expedition, and has no current actions).
+*
+* @param {object} recruit The recruit object with an 'id' and 'curr_actions' property.
+* @param {array} teams An array of team objects, each potentially having a 'recruitIds' array.
+* @param {array} expeditions An array of expedition objects, each potentially having a 'participants' array or Set.
+* @returns {boolean} True if the recruit is available, false otherwise.
+*/
+export const isRecruitAvailable = (recruit, teams, expeditions) => { // Assuming teams and expeditions are passed or accessible
+  // Recruit is not available if they have a current job/action
+  if (recruit.curr_actions !== null) {
+      return false;
+  }
+  // Recruit is not available if they are in any team
+  // Use Array.prototype.some to check and stop iterating as soon as a match is found.
+  // Assuming teams is an array of objects and each object has a recruitIds array property.
+  if (teams.some(team => team.recruitIds && team.recruitIds.includes(recruit.id))) {
+      return false;
+  }
+  // Recruit is not available if they are in any expedition
+  // Use Array.prototype.some to check and stop iterating as soon as a match is found.
+  // Assuming expeditions is an array of objects and each object has a participants property
+  // which is either an array or a Set. Using includes() which works for arrays.
+  // If participants is guaranteed to be a Set, use .has() instead for potentially better performance.
+  if (expeditions.some(expedition => expedition.participants && (
+       Array.isArray(expedition.participants) ?
+       expedition.participants.includes(recruit.id) :
+       expedition.participants.has(recruit.id) // Assuming it might be a Set
+  ))) {
+       return false;
+  }
+
+  // If none of the above conditions are met, the recruit is available
+  return true;
+};
 

@@ -1,13 +1,16 @@
 import { Button, Checkbox, Form, Input, Select, Space } from 'antd';
 import { useState } from "react"
-import { calculateTeamHealth } from "../../global"
+import { calculateTeamHealth, isRecruitAvailable } from "../../global"
 
 export const TeamsForm = ({operations}) => {
     const [isModalOpen, setIsModalOpen] = operations.modalOpenOperations
     const [modalMessage, setModalMessage] = operations.modalMessageOperations
     const [recruits, setRecruits] = operations.recruitsOperations
+    const [expeditions, setExpeditions] = operations.expeditionOperations
     const [teams, setTeams] = operations.teamsOperations
     const includesAny = (arr, values) => values.some(v => arr.includes(v));
+    
+    
     const onFinish = values => {
       const members = values.recruits
       if (includesAny(inTeams(), members)){
@@ -20,6 +23,7 @@ export const TeamsForm = ({operations}) => {
       
       const name = recruits.filter( el => el.id === members[0] )[0].name + "'s Team"
 //      console.log(name)
+      
       setTeams([
         ... teams, 
           { 
@@ -62,7 +66,8 @@ export const TeamsForm = ({operations}) => {
         maxhp:el.stats.maxHealth, 
         label: el.name, 
         value: el.id, 
-        disabled: (inTeams().includes(el.id) || el.curr_actions !== null)}))
+        disabled: !isRecruitAvailable(el, teams, expeditions)
+    }))
     
     return (
         <Form

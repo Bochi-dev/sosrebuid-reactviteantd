@@ -1,4 +1,4 @@
-import { Flex, Space, Row, Col } from 'antd';
+import { Flex, Space, Row, Col, Modal } from 'antd';
 import { useState } from "react"
 import { TeamsForm } from "./TeamsForm"
 import { TeamsCard } from "./TeamsCard"
@@ -6,7 +6,7 @@ import { healRecruit } from "../../global"
 
 
 export const Teams = ({operations}) => {
-    
+    const [modal, contextHolder] = Modal.useModal();
     const [teams, setTeams] = operations.teamsOperations
     const [recruits, setRecruits] = operations.recruitsOperations
     
@@ -16,22 +16,29 @@ export const Teams = ({operations}) => {
         })
     }
     const recapacitateTeam = (team) => {
-        const recruit = team.recruitIds
-    
-        healRecruit(recruit, setRecruits, 2)
+        team.recruitIds.forEach(el => {
+          const recruit = recruits.find(re => re.id === el)
+          healRecruit(recruit, setRecruits, 3)
+        
+        })
+
     }
 
     return (
-        <>  
-            
-            <div>
-                <TeamsForm operations={operations}/>
-            </div>
-            <Flex wrap gap="small">
-                {teams.map( el => <TeamsCard team={el} deleteTeam={deleteTeam} recruits={recruits}/>)}
-            </Flex>
-        </>
-    
+      <>  
+        <div>
+            <TeamsForm operations={operations}/>
+        </div>
+        <Flex wrap gap="small">
+            {teams.map( (el, index) => <TeamsCard 
+              key={index} team={el} deleteTeam={deleteTeam} 
+              operations={operations} 
+              healRecruit={healRecruit} recapacitateTeam={recapacitateTeam}
+              modal={modal}
+            />)}
+        </Flex>
+        {contextHolder}
+      </>
     )
     
 }

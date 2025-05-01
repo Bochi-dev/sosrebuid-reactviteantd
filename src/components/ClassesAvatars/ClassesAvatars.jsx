@@ -12,7 +12,7 @@ export const ClassAvatar = ({slot}) => {
 
 export const ClassesAvatars = ({classes}) => (
     <Avatar.Group>
-      {classes.map(e => <ClassAvatar slot={e}/>)}
+      {classes.map((e, index) => <ClassAvatar key={index} slot={e}/>)}
     </Avatar.Group>
 )
 

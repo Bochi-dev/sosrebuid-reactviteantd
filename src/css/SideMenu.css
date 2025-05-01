@@ -1,0 +1,19 @@
+/* In your App.css or SideMenu.css */
+
+/* Target the menu item element itself */
+.menu-item-under-attack {
+    /* Using !important can help override Ant Design's default styles */
+    color: red !important;
+}
+
+/* You might need to target the icon and text specifically */
+.menu-item-under-attack .anticon,
+.menu-item-under-attack .ant-menu-title-content {
+    color: red !important;
+}
+
+/* Optional: Change hover/active color as well if needed */
+.menu-item-under-attack.ant-menu-item:hover,
+.menu-item-under-attack.ant-menu-item-selected {
+    color: red !important; /* Keep red on hover/selection */
+}

@@ -11,12 +11,15 @@ Flex, Progress,
 Select} from "antd";
 import { AntDesignOutlined, UserOutlined, MinusCircleOutlined} from '@ant-design/icons';
 import { NotAvailableMessage } from "../../components"
+import { isRecruitAvailable } from "../../global"
 
 export function MissionCard ({operations}) {
     const [missions, setMissions] = operations.pageOperations
     const [recruits, setRecruits] = operations.recruitsOperations
     const [disableSelect, setDisableSelect] = operations.disabledOperations
     const [weekday, day, turn] = operations.timeOperations
+    const [expeditions, setExpeditions] = operations.expeditionOperations
+    const [teams, setTeams] = operations.teamsOperations
     
     const requirements = (reqs) => {
       if (reqs.length == 0){
@@ -54,12 +57,10 @@ export function MissionCard ({operations}) {
               }}
               placeholder="Please select"
               onChange={(value) => {
-                console.log(value)
                 /*Before adding the participants we will add
                     the mission/training to the user*/
                 setRecruits((prev) => {
                     return prev.map((recruit) => {
-                        console.log( recruit.name, recruit.curr_actions)
 //                        if the id is inside values
                         if (value.includes(recruit.id)){
 //                        return a recruit with a new current mission
@@ -93,7 +94,6 @@ export function MissionCard ({operations}) {
                     return { ... training, participants: value, }
                   })
                   
-                  console.log("prev", prev)
                   return prev
                 })
               }}
@@ -101,7 +101,7 @@ export function MissionCard ({operations}) {
                 return {
                   label: r.name,
                   value: r.id,
-                  disabled: (r.curr_actions !== null)
+                  disabled: !isRecruitAvailable(r, teams, expeditions)
                 }
               })}
               optionRender={option => (

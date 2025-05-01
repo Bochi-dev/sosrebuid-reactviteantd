@@ -43,12 +43,13 @@ export const Walls = ({operations}) => {
     
       return stationated
     }
+    
     return (<>
       <Row gutter={12}>
           <Col span={12}>
               <Flex wrap={true}>
                 {walls.map((el, index) => (
-                    <WallsCard key={index} wall={el} setWalls={setWalls} inWalls={inWalls} teams={teams} setRecruits={setRecruits}/>
+                    <WallsCard key={index} wall={el} setWalls={setWalls} inWalls={inWalls} teams={teams} setRecruits={setRecruits} operations={operations}/>
                   )
                 )}
               </Flex>

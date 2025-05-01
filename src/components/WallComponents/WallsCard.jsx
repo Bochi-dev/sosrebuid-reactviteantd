@@ -5,6 +5,7 @@ import { ExclamationCircleOutlined,
 CheckCircleOutlined,
 ArrowUpOutlined,
 PlusOutlined} from "@ant-design/icons"
+import { checkAndSubstract } from "../../global"
 
 
 const data = [
@@ -27,7 +28,10 @@ const data = [
 ];
 
 
-export const WallsCard = ({wall, setWalls, inWalls, teams, setRecruits}) => {
+export const WallsCard = ({wall, setWalls, inWalls, teams, setRecruits, operations}) => {
+    const [resources, setResources] = operations.resourcesOperations
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [modalMessage, setModalMessage] = useState(<></>)
     const attacker = wall.attacker
     let style = {background: null}
     let color = green[6]
@@ -73,54 +77,56 @@ export const WallsCard = ({wall, setWalls, inWalls, teams, setRecruits}) => {
             
     }
     
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [modalMessage, setModalMessage] = useState(<></>);
-    const showModal = () => {
-      setIsModalOpen(true);
-    };
-    const handleOk = () => {
-      setIsModalOpen(false);
-//      remove materials from our materials and then repair, but for now, only repair
-
-      setWalls( prev => {
-        return prev.map(el => {
-          if (el.id !== wall.id) return el
-          return {
-            ... el,
-            health: el.health + 1,
-            messageSent: false,
-          }
-        })
-      })
-      
-    };
-    const handleCancel = () => {
-      setIsModalOpen(false);
-    };
-    
-    
     const repair = () => {
-        setModalMessage(
-          <>
-            <h3>Do you wann use the next materials to repair the wall?</h3>
-            <List
-              itemLayout="horizontal"
-              dataSource={data}
-              renderItem={(item, index) => (
-                <List.Item>
-                  <List.Item.Meta
-                    description={item.label}
-                  />
-                </List.Item>
-              )}
-            />
-            
-          </>
+      setModalMessage(<>
+        <h3>Do you wann use the next materials to repair the wall?</h3>
+          <List
+            itemLayout="horizontal"
+            dataSource={data}
+            renderItem={(item, index) => (
+              <List.Item>
+                <List.Item.Meta
+                  description={item.label}
+                />
+              </List.Item>
+            )}
+          />
+      </>
+      )
+      setIsModalOpen(true)
+    }
+    const onOk = () => {
+      if (checkAndSubstract(resources, setResources, "wood", 5)) {
+          setWalls(prev => {
+              const index = prev.findIndex(el => el.id === wall.id); // Find the index
+
+              // If the wall is not found, return the previous state
+              if (index === -1) {
+                  return prev;
+              }
+
+              // Create a new array with the updated wall at the found index
+              return [
+                  ...prev.slice(0, index), // Elements before the updated wall
+                  {
+                      ...prev[index], // Copy the existing wall properties
+                      health: prev[index].health + 1, // Update health
+                      messageSent: false, // Update messageSent
+                  },
+                  ...prev.slice(index + 1), // Elements after the updated wall
+              ];
+          });
+      } else {
+          setModalMessage(<p>
+            Insufficient resources, to repair the wall (hint: go on an exploration to get more)
+          </p>)
+      }
+      setIsModalOpen(false)
+    
+    }
         
-        )
-    
-    
-        showModal()
+    const onCancel = () => {
+      setIsModalOpen(false)
     }
 
     return <div>
@@ -155,9 +161,7 @@ export const WallsCard = ({wall, setWalls, inWalls, teams, setRecruits}) => {
             </div>
         </Card>
         <AttackerDetails attacker={attacker}/>
-        <Modal open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-          {modalMessage}
-        </Modal>
+         <Modal title="Basic Modal" open={isModalOpen} onOk={onOk} onCancel={onCancel}>{modalMessage}</Modal>
     </div>
 
 }
